@@ -18,7 +18,7 @@ import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.world.World;
-import nowhed.ringlesgunturret.RinglesGunTurret;
+import nowhed.ringlesgunturret.gui.GunTurretScreenHandler;
 import nowhed.ringlesgunturret.sound.ModSounds;
 import org.jetbrains.annotations.Nullable;
 
@@ -46,6 +46,10 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
         return rotation;
     }
 
+    public void addRotation(float value) {
+        rotation += value;
+    }
+
     public GunTurretBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.GUN_TURRET_BLOCK_ENTITY,pos,state);
 
@@ -70,16 +74,6 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
 
 
 
-    /*@Override
-    public void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
-        if (state.getBlock() != newState.getBlock()) {
-            BlockEntity blockEntity = world.getBlockEntity(pos);
-            if (blockEntity instanceof GunTurretBlockEntity) {
-                ItemScatterer.spawn(world, pos, inventory);
-                world.updateComparators(pos, this);
-            }
-        }
-    }*/
 
     @Override
     public void writeScreenOpeningData(ServerPlayerEntity player, PacketByteBuf buf) {
@@ -93,7 +87,7 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
 
     @Override
     public @Nullable ScreenHandler createMenu(int syncId, PlayerInventory playerInventory, PlayerEntity player) {
-        return null;
+        return new GunTurretScreenHandler(syncId, playerInventory,this);
     }
 
     @Override
@@ -106,6 +100,8 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
         if (world.isClient()) {
             return;
         }
+
+        GunTurretBlockEntity thisEntity = (GunTurretBlockEntity) blockEntity;
 
         List<LivingEntity> livingEntities = world.getEntitiesByClass(LivingEntity.class,rangeToSearch, e -> e.isAlive());
         //RinglesGunTurret.LOGGER.info(livingEntities.toString());
@@ -136,8 +132,10 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
         double z = (chosen.getPos().getZ() - 0.5) - pos.getZ();
         double x = (chosen.getPos().getX() - 0.5) - pos.getX();
         float angle = (float) (Math.atan2(z,x) * (-180.0 / Math.PI) - 90);
-        float lerp = (float)((((((angle - rotation) % 360) + 540) % 360) - 180) * 0.1);
-        rotation += lerp; // lerp
+        float lerp = (float) ((((((angle - thisEntity.getRotation()) % 360) + 540) % 360) - 180) * 0.1);
+
+        thisEntity.addRotation(lerp); // lerp
+
         //RinglesGunTurret.LOGGER.info("" + lerp);
         if(Math.abs(lerp) > 3) {
             if(canPlaySound) {

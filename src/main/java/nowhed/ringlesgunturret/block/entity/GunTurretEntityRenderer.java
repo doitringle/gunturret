@@ -3,7 +3,6 @@ package nowhed.ringlesgunturret.block.entity;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.block.Block;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -14,8 +13,6 @@ import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.RotationAxis;
-import net.minecraft.util.math.random.Random;
-import nowhed.ringlesgunturret.RinglesGunTurret;
 import nowhed.ringlesgunturret.block.ModBlocks;
 
 @Environment(EnvType.CLIENT)

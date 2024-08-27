@@ -12,5 +12,17 @@
       "ringlesgunturret:light-gunshot-2",
       "ringlesgunturret:light-gunshot-3"
     ]
+  },
+  "open": {
+    "subtitle": "Turret accessed",
+    "sounds": [
+      "ringlesgunturret:machine-open"
+    ]
+  },
+  "close": {
+    "subtitle": "Turret closed",
+    "sounds": [
+      "ringlesgunturret:machine-close"
+    ]
   }
 }

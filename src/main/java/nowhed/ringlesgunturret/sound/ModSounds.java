@@ -10,6 +10,9 @@ public class ModSounds {
     public static final SoundEvent TURRET_ROTATES = registerSoundEvent("turret_rotates");
     public static final SoundEvent TURRET_SHOOTS = registerSoundEvent("turret_shoot");
 
+    public static final SoundEvent OPEN = registerSoundEvent("open");
+    public static final SoundEvent CLOSE = registerSoundEvent("close");
+
     private static SoundEvent registerSoundEvent(String name) {
 
         Identifier id = new Identifier(RinglesGunTurret.MOD_ID, name);
