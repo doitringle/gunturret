@@ -1,4 +1,4 @@
-package nowhed.ringlesgunturret.sounds;
+package nowhed.ringlesgunturret.sound;
 
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;

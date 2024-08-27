@@ -2,13 +2,11 @@ package nowhed.ringlesgunturret;
 
 import net.fabricmc.api.ModInitializer;
 
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.util.Identifier;
 import nowhed.ringlesgunturret.block.ModBlocks;
 import nowhed.ringlesgunturret.block.entity.ModBlockEntities;
 import nowhed.ringlesgunturret.item.ModItemGroups;
 import nowhed.ringlesgunturret.item.ModItems;
-import nowhed.ringlesgunturret.sounds.ModSounds;
+import nowhed.ringlesgunturret.sound.ModSounds;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

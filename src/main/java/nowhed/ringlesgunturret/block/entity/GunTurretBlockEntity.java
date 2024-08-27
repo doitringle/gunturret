@@ -14,29 +14,27 @@ import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.text.Text;
-import net.minecraft.util.ItemScatterer;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import nowhed.ringlesgunturret.RinglesGunTurret;
-import nowhed.ringlesgunturret.sounds.ModSounds;
+import nowhed.ringlesgunturret.sound.ModSounds;
 import org.jetbrains.annotations.Nullable;
-import net.minecraft.entity.ai.TargetPredicate;
-import org.joml.Quaterniond;
 
 import java.util.List;
 
 public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenHandlerFactory, ImplementedInventory, BlockEntityTicker {
     public static final int INVENTORY_SIZE = 4;
-    public static float rotation = 32;
-    public static int range = 25;
+
+    public static int range = 12;
+    public static boolean canPlaySound = false;
     public Box rangeToSearch =  new Box(this.getPos().getX() - range, this.getPos().getY()-0.5,this.getPos().getZ() - range,
                                 this.getPos().getX() + range, this.getPos().getY()+1.5,this.getPos().getZ() + range);
     //public static float rotationTarget = 60;
     private DefaultedList<ItemStack> inventory = DefaultedList.ofSize(4,ItemStack.EMPTY);
 
+    private static float rotation = 32;
 
 
     @Override
@@ -44,6 +42,9 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
         return inventory;
     }
 
+    public float getRotation() {
+        return rotation;
+    }
 
     public GunTurretBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.GUN_TURRET_BLOCK_ENTITY,pos,state);
@@ -135,15 +136,17 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
         double z = (chosen.getPos().getZ() - 0.5) - pos.getZ();
         double x = (chosen.getPos().getX() - 0.5) - pos.getX();
         float angle = (float) (Math.atan2(z,x) * (-180.0 / Math.PI) - 90);
-
-        rotation += (float) ((((((angle - rotation) % 360) + 540) % 360) - 180) * 0.1); // lerp
-
-        if(Math.abs(rotation - angle) > 15) {
-            world.playSound(null, pos, ModSounds.TURRET_ROTATES, SoundCategory.BLOCKS,1f,1f);
-            RinglesGunTurret.LOGGER.info("sound");
+        float lerp = (float)((((((angle - rotation) % 360) + 540) % 360) - 180) * 0.1);
+        rotation += lerp; // lerp
+        //RinglesGunTurret.LOGGER.info("" + lerp);
+        if(Math.abs(lerp) > 3) {
+            if(canPlaySound) {
+                world.playSound(null, pos, ModSounds.TURRET_ROTATES, SoundCategory.BLOCKS, 1f, 1f);
+                canPlaySound = false;
+            }
+        } else {
+            canPlaySound = true;
         }
 
-
-        RinglesGunTurret.LOGGER.info(rotation + "");
     }
 }
