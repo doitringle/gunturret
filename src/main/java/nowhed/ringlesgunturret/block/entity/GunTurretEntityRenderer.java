@@ -25,8 +25,7 @@ public class GunTurretEntityRenderer implements BlockEntityRenderer<GunTurretBlo
                 VertexConsumerProvider vertexConsumers, int light, int overlay) {
             matrices.translate(0.5,0.5,0.5);
             //matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees((blockEntity.getWorld().getTime() + tickDelta) * 4));
-            RinglesGunTurret.LOGGER.info(":" + (blockEntity.getRotation()));
-            RinglesGunTurret.LOGGER.info("" + blockEntity);
+            RinglesGunTurret.LOGGER.info(blockEntity + "");
 
             matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(blockEntity.getRotation()));
             int lightAbove = WorldRenderer.getLightmapCoordinates(blockEntity.getWorld(), blockEntity.getPos().up());

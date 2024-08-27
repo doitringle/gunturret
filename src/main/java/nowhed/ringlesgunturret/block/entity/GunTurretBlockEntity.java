@@ -47,6 +47,7 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
         return this.rotation;
     }
 
+
     public void addRotation(float value) {
         this.rotation += value;
     }
@@ -138,7 +139,7 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
         //RinglesGunTurret.LOGGER.info(thisEntity + " lerp: " + lerp);
         RinglesGunTurret.LOGGER.info(thisEntity + " rot: " + thisEntity.getRotation());
         thisEntity.addRotation(lerp);
-
+        // having a lot of trouble with this
         //RinglesGunTurret.LOGGER.info("" + lerp);
         if(Math.abs(lerp) > 3) {
             if(canPlaySound) {
