@@ -12,9 +12,10 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
+import nowhed.ringlesgunturret.block.entity.GunTurretBlockEntity;
 import org.jetbrains.annotations.Nullable;
 
-public class GunTurretBlock extends Block {
+public class GunTurretBlock extends BlockWithEntity {
 
     private static final VoxelShape SHAPE = Block.createCuboidShape(-8,0,-8,24,8,24);
 
@@ -38,10 +39,11 @@ public class GunTurretBlock extends Block {
         return ActionResult.SUCCESS;
     }
 
-    /*@Nullable
+    @Nullable
     @Override
     public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
-        return null;
-    }*/
+        return new GunTurretBlockEntity(pos, state);
+    }
+
 
 }

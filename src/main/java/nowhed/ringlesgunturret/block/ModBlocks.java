@@ -26,7 +26,8 @@ public class ModBlocks {
                     .noBlockBreakParticles() // maybe remove this ill see how it looks
             ));
 
-
+    public static final Block GUN_TURRET_TOP = registerBlock("gun_turret_top",
+            new Block(FabricBlockSettings.copyOf(GUN_TURRET)));
 
     private static Block registerBlock(String name,Block block) {
         registerBlockItem(name, block);

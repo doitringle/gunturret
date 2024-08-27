@@ -3,6 +3,7 @@ package nowhed.ringlesgunturret;
 import net.fabricmc.api.ModInitializer;
 
 import nowhed.ringlesgunturret.block.ModBlocks;
+import nowhed.ringlesgunturret.block.entity.ModBlockEntities;
 import nowhed.ringlesgunturret.item.ModItemGroups;
 import nowhed.ringlesgunturret.item.ModItems;
 import org.slf4j.Logger;
@@ -18,6 +19,7 @@ public class RinglesGunTurret implements ModInitializer {
 		ModItemGroups.registerItemGroups();
 		ModItems.registerModItems();
 		ModBlocks.registerModBlocks();
+		ModBlockEntities.registerBlockEntities();
 		LOGGER.info("oeugh...");
 
 	}
