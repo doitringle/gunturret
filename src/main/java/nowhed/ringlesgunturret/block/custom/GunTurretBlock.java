@@ -2,6 +2,8 @@ package nowhed.ringlesgunturret.block.custom;
 
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityTicker;
+import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
@@ -13,6 +15,7 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import nowhed.ringlesgunturret.block.entity.GunTurretBlockEntity;
+import nowhed.ringlesgunturret.block.entity.ModBlockEntities;
 import org.jetbrains.annotations.Nullable;
 
 public class GunTurretBlock extends BlockWithEntity {
@@ -45,5 +48,9 @@ public class GunTurretBlock extends BlockWithEntity {
         return new GunTurretBlockEntity(pos, state);
     }
 
-
+    @Override
+    public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
+        return checkType(type, ModBlockEntities.GUN_TURRET_BLOCK_ENTITY,
+                ((world1, pos, state1, blockEntity) -> blockEntity.tick(world1, pos, state1, blockEntity)));
+    }
 }

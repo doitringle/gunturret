@@ -3,6 +3,8 @@ package nowhed.ringlesgunturret.block.entity;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityTicker;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
@@ -10,16 +12,31 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.sound.SoundCategory;
 import net.minecraft.text.Text;
 import net.minecraft.util.ItemScatterer;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import nowhed.ringlesgunturret.RinglesGunTurret;
+import nowhed.ringlesgunturret.sounds.ModSounds;
 import org.jetbrains.annotations.Nullable;
-public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenHandlerFactory, ImplementedInventory {
+import net.minecraft.entity.ai.TargetPredicate;
+import org.joml.Quaterniond;
+
+import java.util.List;
+
+public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenHandlerFactory, ImplementedInventory, BlockEntityTicker {
     public static final int INVENTORY_SIZE = 4;
-    public static double rotation = 32;
+    public static float rotation = 32;
+    public static int range = 25;
+    public Box rangeToSearch =  new Box(this.getPos().getX() - range, this.getPos().getY()-0.5,this.getPos().getZ() - range,
+                                this.getPos().getX() + range, this.getPos().getY()+1.5,this.getPos().getZ() + range);
+    //public static float rotationTarget = 60;
     private DefaultedList<ItemStack> inventory = DefaultedList.ofSize(4,ItemStack.EMPTY);
+
 
 
     @Override
@@ -78,5 +95,55 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
         return null;
     }
 
+    @Override
+    public void markDirty() {
+        super.markDirty();
+    }
 
+    @Override
+    public void tick(World world, BlockPos pos, BlockState state, BlockEntity blockEntity) {
+        if (world.isClient()) {
+            return;
+        }
+
+        List<LivingEntity> livingEntities = world.getEntitiesByClass(LivingEntity.class,rangeToSearch, e -> e.isAlive());
+        //RinglesGunTurret.LOGGER.info(livingEntities.toString());
+        if (livingEntities.isEmpty()) {
+            return;
+        }
+        double lowest = 999;
+        LivingEntity chosen = livingEntities.get(0);
+        for(LivingEntity entity : livingEntities) {
+
+            double distance = Math.sqrt(
+                    Math.pow((entity.getX() - pos.getX()),2) +
+                    Math.pow((entity.getZ() - pos.getZ()),2)
+            );
+            if (distance < lowest) {
+                lowest = distance;
+                chosen = entity;
+            }
+        }
+
+
+        if (chosen == null ) {
+            return;
+        }
+
+
+
+        double z = (chosen.getPos().getZ() - 0.5) - pos.getZ();
+        double x = (chosen.getPos().getX() - 0.5) - pos.getX();
+        float angle = (float) (Math.atan2(z,x) * (-180.0 / Math.PI) - 90);
+
+        rotation += (float) ((((((angle - rotation) % 360) + 540) % 360) - 180) * 0.1); // lerp
+
+        if(Math.abs(rotation - angle) > 15) {
+            world.playSound(null, pos, ModSounds.TURRET_ROTATES, SoundCategory.BLOCKS,1f,1f);
+            RinglesGunTurret.LOGGER.info("sound");
+        }
+
+
+        RinglesGunTurret.LOGGER.info(rotation + "");
+    }
 }

@@ -1,0 +1,16 @@
+{
+  "turret_rotates": {
+    "subtitle": "Turret rotates",
+    "sounds": [
+      "ringlesgunturret:inserter-basic-1"
+    ]
+  },
+  "turret_shoot": {
+    "subtitle": "Gunshot",
+    "sounds": [
+      "ringlesgunturret:light-gunshot-1",
+      "ringlesgunturret:light-gunshot-2",
+      "ringlesgunturret:light-gunshot-3"
+    ]
+  }
+}
