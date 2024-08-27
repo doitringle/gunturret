@@ -18,6 +18,7 @@ import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.world.World;
+import nowhed.ringlesgunturret.RinglesGunTurret;
 import nowhed.ringlesgunturret.gui.GunTurretScreenHandler;
 import nowhed.ringlesgunturret.sound.ModSounds;
 import org.jetbrains.annotations.Nullable;
@@ -28,13 +29,13 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
     public static final int INVENTORY_SIZE = 4;
 
     public static int range = 12;
-    public static boolean canPlaySound = false;
+    private boolean canPlaySound = false;
     public Box rangeToSearch =  new Box(this.getPos().getX() - range, this.getPos().getY()-0.5,this.getPos().getZ() - range,
                                 this.getPos().getX() + range, this.getPos().getY()+1.5,this.getPos().getZ() + range);
     //public static float rotationTarget = 60;
     private DefaultedList<ItemStack> inventory = DefaultedList.ofSize(4,ItemStack.EMPTY);
 
-    private static float rotation = 32;
+    private float rotation;
 
 
     @Override
@@ -43,16 +44,16 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
     }
 
     public float getRotation() {
-        return rotation;
+        return this.rotation;
     }
 
     public void addRotation(float value) {
-        rotation += value;
+        this.rotation += value;
     }
 
     public GunTurretBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.GUN_TURRET_BLOCK_ENTITY,pos,state);
-
+        this.rotation = 0;
     }
 
     @Override
@@ -70,9 +71,6 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
     protected void writeNbt(NbtCompound nbt) {
         super.writeNbt(nbt);
     }
-
-
-
 
 
     @Override
@@ -97,9 +95,11 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
 
     @Override
     public void tick(World world, BlockPos pos, BlockState state, BlockEntity blockEntity) {
+
         if (world.isClient()) {
             return;
         }
+
 
         GunTurretBlockEntity thisEntity = (GunTurretBlockEntity) blockEntity;
 
@@ -134,7 +134,10 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
         float angle = (float) (Math.atan2(z,x) * (-180.0 / Math.PI) - 90);
         float lerp = (float) ((((((angle - thisEntity.getRotation()) % 360) + 540) % 360) - 180) * 0.1);
 
-        thisEntity.addRotation(lerp); // lerp
+        //RinglesGunTurret.LOGGER.info("parameter pos: " + pos + " / thisEntity pos: " + thisEntity.getPos());
+        //RinglesGunTurret.LOGGER.info(thisEntity + " lerp: " + lerp);
+        RinglesGunTurret.LOGGER.info(thisEntity + " rot: " + thisEntity.getRotation());
+        thisEntity.addRotation(lerp);
 
         //RinglesGunTurret.LOGGER.info("" + lerp);
         if(Math.abs(lerp) > 3) {
