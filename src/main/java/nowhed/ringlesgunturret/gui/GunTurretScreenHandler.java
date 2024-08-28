@@ -76,7 +76,7 @@ public class GunTurretScreenHandler extends ScreenHandler {
     public void onClosed(PlayerEntity player) {
         super.onClosed(player);
         this.inventory.onClose(player);
-        player.getWorld().playSound(null, player.getBlockPos(), ModSounds.CLOSE, SoundCategory.BLOCKS, 1f, 1f);
+        player.getWorld().playSound(null, player.getBlockPos(), ModSounds.CLOSE, SoundCategory.BLOCKS, 0.5f, 1f);
     }
 
     private void addPlayerInventory(PlayerInventory playerInventory) {

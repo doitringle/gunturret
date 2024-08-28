@@ -36,6 +36,7 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
     private DefaultedList<ItemStack> inventory = DefaultedList.ofSize(4,ItemStack.EMPTY);
 
     private float rotation;
+    private int shootTimer = 60;
 
 
     @Override
@@ -97,15 +98,15 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
     @Override
     public void tick(World world, BlockPos pos, BlockState state, BlockEntity blockEntity) {
 
-        /*if (world.isClient()) {
-            return;
-        }*/
+        /*if (world.isClient()) {return;}
+        this one line of code destroyed my entire afternoon
+        */
 
 
         GunTurretBlockEntity thisEntity = (GunTurretBlockEntity) blockEntity;
 
         List<LivingEntity> livingEntities = world.getEntitiesByClass(LivingEntity.class,rangeToSearch, e -> e.isAlive());
-        //RinglesGunTurret.LOGGER.info(livingEntities.toString());
+
         if (livingEntities.isEmpty()) {
             return;
         }
@@ -124,8 +125,23 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
         }
 
 
-        if (chosen == null ) {
+        if(chosen == null) {
+
+            shootTimer = 60;
+            canPlaySound = true;
             return;
+
+        } else {
+
+            if (shootTimer > 0) {
+                shootTimer--;
+            }
+
+            if(canPlaySound) {
+                world.playSound(null, pos, ModSounds.TURRET_ROTATES, SoundCategory.BLOCKS, 0.8f, 1f);
+                canPlaySound = false;
+            }
+
         }
 
 
@@ -137,14 +153,7 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
 
         thisEntity.addRotation(lerp);
 
-        if(Math.abs(lerp) > 3) {
-            if(canPlaySound) {
-                world.playSound(null, pos, ModSounds.TURRET_ROTATES, SoundCategory.BLOCKS, 1f, 1f);
-                canPlaySound = false;
-            }
-        } else {
-            canPlaySound = true;
-        }
+
 
     } //
 }
