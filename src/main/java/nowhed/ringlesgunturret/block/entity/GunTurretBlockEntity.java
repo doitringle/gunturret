@@ -148,5 +148,5 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
             canPlaySound = true;
         }
 
-    }
+    } //
 }
