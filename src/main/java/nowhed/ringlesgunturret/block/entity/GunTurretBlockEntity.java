@@ -129,16 +129,14 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
         }
 
 
-
         double z = (chosen.getPos().getZ() - 0.5) - pos.getZ();
         double x = (chosen.getPos().getX() - 0.5) - pos.getX();
         float angle = (float) (Math.atan2(z,x) * (-180.0 / Math.PI) - 90);
         float lerp = (float) ((((((angle - thisEntity.getRotation()) % 360) + 540) % 360) - 180) * 0.1);
 
-        //RinglesGunTurret.LOGGER.info("parameter pos: " + pos + " / thisEntity pos: " + thisEntity.getPos());
-        //RinglesGunTurret.LOGGER.info(thisEntity + " lerp: " + lerp);
-        RinglesGunTurret.LOGGER.info(thisEntity + " rot: " + thisEntity.getRotation());
+
         thisEntity.addRotation(lerp);
+        //RinglesGunTurret.LOGGER.info(blockEntity + " / " + ((GunTurretBlockEntity) blockEntity).getRotation() + " A");
         // having a lot of trouble with this
         //RinglesGunTurret.LOGGER.info("" + lerp);
         if(Math.abs(lerp) > 3) {

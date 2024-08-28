@@ -24,6 +24,8 @@ public class GunTurretBlock extends BlockWithEntity {
 
     private static final VoxelShape SHAPE = Block.createCuboidShape(-8,0,-8,24,8,24);
 
+
+
     public GunTurretBlock(Settings settings) {
         super(settings);
     }
