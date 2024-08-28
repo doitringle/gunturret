@@ -97,9 +97,9 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
     @Override
     public void tick(World world, BlockPos pos, BlockState state, BlockEntity blockEntity) {
 
-        if (world.isClient()) {
+        /*if (world.isClient()) {
             return;
-        }
+        }*/
 
 
         GunTurretBlockEntity thisEntity = (GunTurretBlockEntity) blockEntity;
@@ -136,9 +136,7 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
 
 
         thisEntity.addRotation(lerp);
-        //RinglesGunTurret.LOGGER.info(blockEntity + " / " + ((GunTurretBlockEntity) blockEntity).getRotation() + " A");
-        // having a lot of trouble with this
-        //RinglesGunTurret.LOGGER.info("" + lerp);
+
         if(Math.abs(lerp) > 3) {
             if(canPlaySound) {
                 world.playSound(null, pos, ModSounds.TURRET_ROTATES, SoundCategory.BLOCKS, 1f, 1f);
