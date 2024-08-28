@@ -24,7 +24,7 @@ public class GunTurretEntityRenderer implements BlockEntityRenderer<GunTurretBlo
         public void render(GunTurretBlockEntity blockEntity, float tickDelta, MatrixStack matrices,
                 VertexConsumerProvider vertexConsumers, int light, int overlay) {
             matrices.translate(0.5,0.5,0.5);
-            RinglesGunTurret.LOGGER.info(blockEntity + " / " + ((GunTurretBlockEntity) blockEntity).getRotation() + " B");
+            //RinglesGunTurret.LOGGER.info(blockEntity + " / " + ((GunTurretBlockEntity) blockEntity).getRotation() + " B");
             matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(blockEntity.getRotation()));
             int lightAbove = WorldRenderer.getLightmapCoordinates(blockEntity.getWorld(), blockEntity.getPos().up());
             MinecraftClient.getInstance().getItemRenderer().renderItem(stack, ModelTransformationMode.GROUND, lightAbove, OverlayTexture.DEFAULT_UV, matrices, vertexConsumers, blockEntity.getWorld(), 0);

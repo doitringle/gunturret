@@ -4,6 +4,7 @@ import net.fabricmc.api.ModInitializer;
 
 import nowhed.ringlesgunturret.block.ModBlocks;
 import nowhed.ringlesgunturret.block.entity.ModBlockEntities;
+import nowhed.ringlesgunturret.damage_type.ModDamageTypes;
 import nowhed.ringlesgunturret.gui.ModScreenHandlers;
 import nowhed.ringlesgunturret.item.ModItemGroups;
 import nowhed.ringlesgunturret.item.ModItems;
@@ -25,6 +26,7 @@ public class RinglesGunTurret implements ModInitializer {
 		ModBlockEntities.registerBlockEntities();
 		ModSounds.registerSounds();
 		ModScreenHandlers.registerScreenHandlers();
+		ModDamageTypes.registerModDamageTypes();
 		LOGGER.info("oeugh...");
 
 	}

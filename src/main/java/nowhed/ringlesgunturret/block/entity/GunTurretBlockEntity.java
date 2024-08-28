@@ -5,11 +5,18 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.damage.DamageSources;
+import net.minecraft.entity.damage.DamageType;
+import net.minecraft.entity.damage.DamageTypes;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.Inventories;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
@@ -19,6 +26,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.world.World;
 import nowhed.ringlesgunturret.RinglesGunTurret;
+import nowhed.ringlesgunturret.damage_type.ModDamageTypes;
 import nowhed.ringlesgunturret.gui.GunTurretScreenHandler;
 import nowhed.ringlesgunturret.sound.ModSounds;
 import org.jetbrains.annotations.Nullable;
@@ -37,7 +45,7 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
 
     private float rotation;
     private int shootTimer = 60;
-
+    private int cooldown = 2;
 
     @Override
     public DefaultedList<ItemStack> getItems() {
@@ -66,12 +74,13 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
     @Override
     public void readNbt(NbtCompound nbt) {
         super.readNbt(nbt);
-        this.inventory = DefaultedList.ofSize(this.size(), ItemStack.EMPTY);
+        Inventories.readNbt(nbt, this.inventory);
     }
 
     @Override
-    protected void writeNbt(NbtCompound nbt) {
+    public void writeNbt(NbtCompound nbt) {
         super.writeNbt(nbt);
+        Inventories.writeNbt(nbt, this.inventory);
     }
 
 
@@ -144,7 +153,7 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
 
         }
 
-
+        RinglesGunTurret.LOGGER.info("" + inventory.get(0).isOf(Items.ARROW));
         double z = (chosen.getPos().getZ() - 0.5) - pos.getZ();
         double x = (chosen.getPos().getX() - 0.5) - pos.getX();
         float angle = (float) (Math.atan2(z,x) * (-180.0 / Math.PI) - 90);
@@ -153,7 +162,30 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
 
         thisEntity.addRotation(lerp);
 
+        boolean hasArrows = false;
+        if(shootTimer <= 0 && Math.abs(lerp) < 3) {
+            for (ItemStack item : inventory) {
+                if (item.isOf(Items.ARROW)) {
+                    hasArrows = true;
+                }
+            }
+            if (hasArrows && cooldown <= 0) {
+                cooldown = 3;
+                world.playSound(null, pos, ModSounds.TURRET_SHOOTS, SoundCategory.BLOCKS, 0.8f, 1f);
+                for (ItemStack item : inventory) {
+                    if (item.isOf(Items.ARROW)) {
+                        item.increment(-1);
+                        break;
+                    }
+                }
 
+                DamageSource damageSource = ModDamageTypes.createDamageSource(world, ModDamageTypes.SHOT_BY_TURRET);
+
+                chosen.damage(damageSource,1);
+            } else {
+                cooldown--;
+            }
+        }
 
     } //
 }
