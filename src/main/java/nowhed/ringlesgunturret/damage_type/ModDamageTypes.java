@@ -13,14 +13,12 @@ public class ModDamageTypes {
     public static final RegistryKey<DamageType> SHOT_BY_TURRET = register("shot_by_turret");
 
 
-    //thank you り月 from the fabric modding discord
-
     public static DamageSource createDamageSource(World world, RegistryKey<DamageType> damageTypeRegistryKey) {
         return new DamageSource(world.getRegistryManager().get(RegistryKeys.DAMAGE_TYPE).entryOf(damageTypeRegistryKey));
     }
 
     private static RegistryKey<DamageType> register(String name) {
-        return RegistryKey.of(RegistryKeys.DAMAGE_TYPE, Identifier.of(RinglesGunTurret.MOD_ID, name));
+        return RegistryKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(RinglesGunTurret.MOD_ID, name));
     }
 
     public static void registerModDamageTypes() {
@@ -28,3 +26,5 @@ public class ModDamageTypes {
     }
 
 }
+
+//thank you り月 from the fabric modding discord

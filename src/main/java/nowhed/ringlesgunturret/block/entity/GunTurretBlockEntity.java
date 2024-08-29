@@ -1,6 +1,8 @@
 package nowhed.ringlesgunturret.block.entity;
 
+import com.mojang.datafixers.types.templates.Tag;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
@@ -11,12 +13,14 @@ import net.minecraft.entity.damage.DamageType;
 import net.minecraft.entity.damage.DamageTypes;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.inventory.Inventories;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
@@ -27,8 +31,10 @@ import net.minecraft.util.math.Box;
 import net.minecraft.world.World;
 import nowhed.ringlesgunturret.RinglesGunTurret;
 import nowhed.ringlesgunturret.damage_type.ModDamageTypes;
+import nowhed.ringlesgunturret.entity.custom.BulletProjectileEntity;
 import nowhed.ringlesgunturret.gui.GunTurretScreenHandler;
 import nowhed.ringlesgunturret.sound.ModSounds;
+import nowhed.ringlesgunturret.util.ModTags;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -153,7 +159,7 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
 
         }
 
-        RinglesGunTurret.LOGGER.info("" + inventory.get(0).isOf(Items.ARROW));
+        //RinglesGunTurret.LOGGER.info("" + inventory.get(0).isOf(Items.ARROW));
         double z = (chosen.getPos().getZ() - 0.5) - pos.getZ();
         double x = (chosen.getPos().getX() - 0.5) - pos.getX();
         float angle = (float) (Math.atan2(z,x) * (-180.0 / Math.PI) - 90);
@@ -161,31 +167,59 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
 
 
         thisEntity.addRotation(lerp);
+        //run rotation calculation on both server & client so that the client can render the top
+        //and the server can detect when its time to shoot
+
+        if (world.isClient()) {return;}
+
 
         boolean hasArrows = false;
         if(shootTimer <= 0 && Math.abs(lerp) < 3) {
+            // wait until locked on target, and there has been at least 60 ticks since the target changed
             for (ItemStack item : inventory) {
-                if (item.isOf(Items.ARROW)) {
+                if (isValidProjectile(item)) {
                     hasArrows = true;
                 }
             }
             if (hasArrows && cooldown <= 0) {
+                //firing cooldown [in-between bullets]
                 cooldown = 3;
-                world.playSound(null, pos, ModSounds.TURRET_SHOOTS, SoundCategory.BLOCKS, 0.8f, 1f);
+                world.playSound(null, pos, ModSounds.TURRET_SHOOTS, SoundCategory.BLOCKS, 0.2f, 1f);
                 for (ItemStack item : inventory) {
-                    if (item.isOf(Items.ARROW)) {
+                    if (isValidProjectile(item)) {
                         item.increment(-1);
                         break;
                     }
                 }
 
-                DamageSource damageSource = ModDamageTypes.createDamageSource(world, ModDamageTypes.SHOT_BY_TURRET);
 
-                chosen.damage(damageSource,1);
+                // FIRE PROJECTILE
+                ProjectileEntity projectileEntity = new BulletProjectileEntity(world);
+                projectileEntity.setPos(this.getPos().getX()+0.5,this.getPos().getY()+1,this.getPos().getZ()+0.5);
+                // IN RADIANS:
+                float rotationR = (float) -((( rotation + 90) % 360) * (Math.PI / 180.0));
+                float xR = (float) (Math.cos(rotationR));
+                float yR = (float) (Math.sin(rotationR));
+                // roll is always 0
+
+                projectileEntity.setOwner(null);
+
+                projectileEntity.setYaw(rotationR);
+
+                projectileEntity.setVelocity(xR,0.0f,yR);
+
+                world.spawnEntity(projectileEntity);
             } else {
                 cooldown--;
             }
         }
 
     } //
+
+    private boolean isValidProjectile(ItemStack item) {
+        if (FabricLoader.getInstance().isModLoaded("hwg")) {
+            return item.isIn(ModTags.Items.VALID_TURRET_PROJECTILE);
+        }
+        return item.isIn(ItemTags.ARROWS);
+    }
 }

@@ -3,5 +3,5 @@
   "block.ringlesgunturret.gun_turret": "Gun Turret",
   "itemgroup.ringlesgunturret": "Ringle's Gun Turret",
   "container.gun_turret": "Gun Turret",
-  "death.attack.killed_by_turret": "%1$s was shot to death by a turret."
+  "death.attack.killed_by_turret": "%1$s was shot to death by a turret"
 }
