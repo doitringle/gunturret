@@ -2,6 +2,7 @@ package nowhed.ringlesgunturret;
 
 import net.fabricmc.api.ModInitializer;
 
+import net.fabricmc.loader.api.FabricLoader;
 import nowhed.ringlesgunturret.block.ModBlocks;
 import nowhed.ringlesgunturret.block.entity.ModBlockEntities;
 import nowhed.ringlesgunturret.damage_type.ModDamageTypes;
@@ -21,6 +22,9 @@ public class RinglesGunTurret implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
+		if (FabricLoader.getInstance().isModLoaded("holy-reminder")) {
+			RinglesGunTurret.LOGGER.info("Holy Reminder is installed! Thanks for using my friends' mod!!");
+		}
 		ModItemGroups.registerItemGroups();
 		ModItems.registerModItems();
 		ModBlocks.registerModBlocks();

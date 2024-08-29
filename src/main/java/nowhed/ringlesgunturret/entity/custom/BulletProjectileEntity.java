@@ -43,10 +43,11 @@ public class BulletProjectileEntity extends ProjectileEntity {
         }
 
 
-        this.getWorld().addParticle(ParticleTypes.CLOUD,getX(),getY(),getZ(), 0.0, 0.0, 0.0);
+        this.getWorld().addParticle(ParticleTypes.CLOUD,getX(),getY(),getZ(), getVelocity().x*0.1, 0.0, getVelocity().z * 0.1);
         setPos(getX() + getVelocity().x, getY(), getZ() + getVelocity().z);
 
         checkBlockCollision();
+
     }
 
     @Override
@@ -62,11 +63,18 @@ public class BulletProjectileEntity extends ProjectileEntity {
 
     @Override
     protected void onBlockHit(BlockHitResult blockHitResult) {
-         this.discard();
+        super.onBlockHit(blockHitResult);
+        this.discard();
     }
+
+    /*@Override
+    protected void onCollision(HitResult hitResult) {
+        RinglesGunTurret.LOGGER.info(hitResult + "");
+    }*/
 
     @Override
     protected void onEntityHit(EntityHitResult entityHitResult) {
+        super.onEntityHit(entityHitResult);
         Entity entity = entityHitResult.getEntity();
         if(!entity.canBeHitByProjectile()) {
             return;

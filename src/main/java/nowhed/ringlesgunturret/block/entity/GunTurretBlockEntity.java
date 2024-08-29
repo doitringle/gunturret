@@ -7,19 +7,13 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.damage.DamageSources;
-import net.minecraft.entity.damage.DamageType;
-import net.minecraft.entity.damage.DamageTypes;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.inventory.Inventories;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -29,8 +23,6 @@ import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.world.World;
-import nowhed.ringlesgunturret.RinglesGunTurret;
-import nowhed.ringlesgunturret.damage_type.ModDamageTypes;
 import nowhed.ringlesgunturret.entity.custom.BulletProjectileEntity;
 import nowhed.ringlesgunturret.gui.GunTurretScreenHandler;
 import nowhed.ringlesgunturret.sound.ModSounds;
@@ -41,6 +33,7 @@ import java.util.List;
 
 public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenHandlerFactory, ImplementedInventory, BlockEntityTicker {
     public static final int INVENTORY_SIZE = 4;
+    public static final double BULLET_SPEED = 2.0;
 
     public static int range = 12;
     private boolean canPlaySound = false;
@@ -163,7 +156,7 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
         double z = (chosen.getPos().getZ() - 0.5) - pos.getZ();
         double x = (chosen.getPos().getX() - 0.5) - pos.getX();
         float angle = (float) (Math.atan2(z,x) * (-180.0 / Math.PI) - 90);
-        float lerp = (float) ((((((angle - thisEntity.getRotation()) % 360) + 540) % 360) - 180) * 0.1);
+        float lerp = (float) ((((((angle - thisEntity.getRotation()) % 360) + 540) % 360) - 180) * 0.2);
 
 
         thisEntity.addRotation(lerp);
@@ -194,19 +187,7 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
 
 
                 // FIRE PROJECTILE
-                ProjectileEntity projectileEntity = new BulletProjectileEntity(world);
-                projectileEntity.setPos(this.getPos().getX()+0.5,this.getPos().getY()+1,this.getPos().getZ()+0.5);
-                // IN RADIANS:
-                float rotationR = (float) -((( rotation + 90) % 360) * (Math.PI / 180.0));
-                float xR = (float) (Math.cos(rotationR));
-                float yR = (float) (Math.sin(rotationR));
-                // roll is always 0
-
-                projectileEntity.setOwner(null);
-
-                projectileEntity.setYaw(rotationR);
-
-                projectileEntity.setVelocity(xR,0.0f,yR);
+                ProjectileEntity projectileEntity = getProjectileEntity(world);
 
                 world.spawnEntity(projectileEntity);
             } else {
@@ -215,6 +196,27 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
         }
 
     } //
+
+    private ProjectileEntity getProjectileEntity(World world) {
+        ProjectileEntity projectileEntity = new BulletProjectileEntity(world);
+
+
+        float rotationR = (float) -((( rotation + 92) % 360) * (Math.PI / 180.0));
+        float xR = (float) (BULLET_SPEED * Math.cos(rotationR));
+        float zR = (float) (BULLET_SPEED * Math.sin(rotationR));
+
+        projectileEntity.setPos(this.getPos().getX()+0.5 + xR*2,this.getPos().getY()+1.3,this.getPos().getZ()+0.5 + zR*2);
+        // IN RADIANS:
+
+
+
+        projectileEntity.setOwner(null);
+
+        projectileEntity.setYaw(-rotationR);
+
+        projectileEntity.setVelocity(xR,0.0f,zR);
+        return projectileEntity;
+    }
 
     private boolean isValidProjectile(ItemStack item) {
         if (FabricLoader.getInstance().isModLoaded("hwg")) {
