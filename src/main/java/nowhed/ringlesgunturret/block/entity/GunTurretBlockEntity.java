@@ -20,8 +20,11 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.text.Text;
 import net.minecraft.util.collection.DefaultedList;
+import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
+import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
 import nowhed.ringlesgunturret.entity.custom.BulletProjectileEntity;
 import nowhed.ringlesgunturret.gui.GunTurretScreenHandler;
@@ -33,7 +36,7 @@ import java.util.List;
 
 public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenHandlerFactory, ImplementedInventory, BlockEntityTicker {
     public static final int INVENTORY_SIZE = 4;
-    public static final double BULLET_SPEED = 2.0;
+    public static final double BULLET_SPEED = 1.5;
 
     public static int range = 12;
     private boolean canPlaySound = false;
@@ -119,7 +122,7 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
             return;
         }
         double lowest = 999;
-        LivingEntity chosen = livingEntities.get(0);
+        LivingEntity chosen = null;
         for(LivingEntity entity : livingEntities) {
 
             double distance = Math.sqrt(
@@ -127,15 +130,22 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
                     Math.pow((entity.getZ() - pos.getZ()),2)
             );
             if (distance < lowest) {
-                lowest = distance;
-                chosen = entity;
+                BlockHitResult blockHitResult = this.getWorld().raycast(new RaycastContext(entity.getPos().add(0,1,0), this.getPos().toCenterPos(), RaycastContext.ShapeType.COLLIDER, RaycastContext.FluidHandling.NONE, entity));
+                if (blockHitResult.getType() != HitResult.Type.BLOCK) {
+                    lowest = distance;
+                    chosen = entity;
+                }
+
             }
+
+
+
         }
 
 
         if(chosen == null) {
 
-            shootTimer = 60;
+            shootTimer = 40;
             canPlaySound = true;
             return;
 
@@ -176,7 +186,7 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
             }
             if (hasArrows && cooldown <= 0) {
                 //firing cooldown [in-between bullets]
-                cooldown = 3;
+                cooldown = 10;
                 world.playSound(null, pos, ModSounds.TURRET_SHOOTS, SoundCategory.BLOCKS, 0.2f, 1f);
                 for (ItemStack item : inventory) {
                     if (isValidProjectile(item)) {
@@ -205,10 +215,11 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
         float xR = (float) (BULLET_SPEED * Math.cos(rotationR));
         float zR = (float) (BULLET_SPEED * Math.sin(rotationR));
 
-        projectileEntity.setPos(this.getPos().getX()+0.5 + xR*2,this.getPos().getY()+1.3,this.getPos().getZ()+0.5 + zR*2);
-        // IN RADIANS:
-
-
+        projectileEntity.setPos(
+                this.getPos().getX() + 0.5 + xR * 0.9,
+                this.getPos().getY() + 1.1,
+                this.getPos().getZ() + 0.5 + zR * 0.9
+        );
 
         projectileEntity.setOwner(null);
 

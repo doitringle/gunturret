@@ -2,20 +2,27 @@ package nowhed.ringlesgunturret.entity.custom;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.MovementType;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.projectile.ProjectileEntity;
+import net.minecraft.entity.projectile.ProjectileUtil;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
+import net.minecraft.util.hit.HitResult;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
 import nowhed.ringlesgunturret.RinglesGunTurret;
 import nowhed.ringlesgunturret.damage_type.ModDamageTypes;
 import nowhed.ringlesgunturret.entity.ModEntities;
+import org.jetbrains.annotations.Nullable;
 
 public class BulletProjectileEntity extends ProjectileEntity {
+   //public static final boolean canCollide
     private int age;
     public static final int removeTime = 60;
     public BulletProjectileEntity(EntityType<? extends ProjectileEntity> entityType, World world) {
@@ -44,16 +51,37 @@ public class BulletProjectileEntity extends ProjectileEntity {
 
 
         this.getWorld().addParticle(ParticleTypes.CLOUD,getX(),getY(),getZ(), getVelocity().x*0.1, 0.0, getVelocity().z * 0.1);
-        setPos(getX() + getVelocity().x, getY(), getZ() + getVelocity().z);
+        //setPos(getX() + getVelocity().x, getY(), getZ() + getVelocity().z);
 
-        checkBlockCollision();
+        Vec3d currentPosition = this.getPos();
 
+        Vec3d nextPosition = currentPosition.add(this.getVelocity());
+
+        BlockHitResult blockHitResult = this.getWorld().raycast(new RaycastContext(currentPosition, nextPosition, RaycastContext.ShapeType.OUTLINE, RaycastContext.FluidHandling.NONE, this));
+        if (blockHitResult.getType() != HitResult.Type.MISS) {
+            this.onBlockHit(blockHitResult);
+        }
+
+        EntityHitResult entityHitResult = this.getEntityCollision(currentPosition, nextPosition);
+
+        if (entityHitResult != null && entityHitResult.getEntity().canHit() && !entityHitResult.getEntity().getType().equals(ModEntities.BULLET_PROJECTILE)) {
+            this.onEntityHit(entityHitResult);
+        }
+
+        this.noClip = true;
+        this.move(MovementType.SELF, this.getVelocity());
+
+
+    }
+
+    @Nullable
+    protected EntityHitResult getEntityCollision(Vec3d start, Vec3d end) {
+        return ProjectileUtil.getEntityCollision(this.getWorld(), this, start, end, this.getBoundingBox().stretch(this.getVelocity()).expand(0.5D), this::canHit);
     }
 
     @Override
     protected boolean canHit(Entity entity) {
-        return true;
-        // return entity.canBeHitByProjectile() && getOwner() != null;
+        return entity.canBeHitByProjectile();
     }
 
     @Override
@@ -63,27 +91,39 @@ public class BulletProjectileEntity extends ProjectileEntity {
 
     @Override
     protected void onBlockHit(BlockHitResult blockHitResult) {
-        super.onBlockHit(blockHitResult);
         this.discard();
     }
 
-    /*@Override
+    @Override
     protected void onCollision(HitResult hitResult) {
-        RinglesGunTurret.LOGGER.info(hitResult + "");
-    }*/
+
+        System.out.println();
+        if (hitResult.getType() == HitResult.Type.ENTITY) {
+            this.onEntityHit((EntityHitResult)hitResult);
+        } else if (hitResult.getType() == HitResult.Type.BLOCK) {
+            this.onBlockHit((BlockHitResult)hitResult);
+        }
+    }
 
     @Override
     protected void onEntityHit(EntityHitResult entityHitResult) {
+
         super.onEntityHit(entityHitResult);
+
         Entity entity = entityHitResult.getEntity();
+
         if(!entity.canBeHitByProjectile()) {
             return;
         }
+
         World world = entity.getWorld();
 
         DamageSource damageSource = ModDamageTypes.createDamageSource(world, ModDamageTypes.SHOT_BY_TURRET);
-        entity.damage(damageSource,4f);
+        entity.damage(damageSource,5f);
+        entity.addVelocity(this.getVelocity().multiply(0.1,0.1,0.1));
 
         this.discard();
     }
+
+
 }

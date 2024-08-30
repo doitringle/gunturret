@@ -13,7 +13,7 @@ import nowhed.ringlesgunturret.entity.custom.BulletProjectileEntity;
 public class ModEntities {
     public static final EntityType<BulletProjectileEntity> BULLET_PROJECTILE = Registry.register(Registries.ENTITY_TYPE,
             new Identifier(RinglesGunTurret.MOD_ID,"bullet_projectile"), FabricEntityTypeBuilder.<BulletProjectileEntity>create(SpawnGroup.MISC, BulletProjectileEntity::new)
-                    .dimensions(EntityDimensions.fixed(0.25f,0.25f)).build());
+                    .dimensions(EntityDimensions.fixed(0.3f,0.25f)).build());
 
     public static void registerModEntities() {
         return;
