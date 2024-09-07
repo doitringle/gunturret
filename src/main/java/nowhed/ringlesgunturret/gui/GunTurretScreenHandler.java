@@ -36,6 +36,8 @@ public class GunTurretScreenHandler extends ScreenHandler {
         this.addSlot(new Slot(inventory,2,72,44));
         this.addSlot(new Slot(inventory,3,90,44)); // this should work...?
 
+
+
         addPlayerInventory(playerInventory);
         addPlayerHotbar(playerInventory);
 

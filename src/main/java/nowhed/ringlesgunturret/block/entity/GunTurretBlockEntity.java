@@ -1,6 +1,5 @@
 package nowhed.ringlesgunturret.block.entity;
 
-import com.mojang.datafixers.types.templates.Tag;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.BlockState;
@@ -15,6 +14,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.registry.tag.ItemTags;
+import net.minecraft.screen.Property;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
@@ -37,7 +37,6 @@ import java.util.List;
 public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenHandlerFactory, ImplementedInventory, BlockEntityTicker {
     public static final int INVENTORY_SIZE = 4;
     public static final double BULLET_SPEED = 1.5;
-
     public static int range = 12;
     private boolean canPlaySound = false;
     public Box rangeToSearch =  new Box(this.getPos().getX() - range, this.getPos().getY()-0.5,this.getPos().getZ() - range,
@@ -45,6 +44,7 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
     //public static float rotationTarget = 60;
     private DefaultedList<ItemStack> inventory = DefaultedList.ofSize(4,ItemStack.EMPTY);
 
+    private PlayerEntity owner;
     private float rotation;
     private int shootTimer = 60;
     private int cooldown = 2;
@@ -58,6 +58,9 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
         return this.rotation;
     }
 
+    public PlayerEntity getOwner() {
+        return this.owner;
+    }
 
     public void addRotation(float value) {
         this.rotation += value;
@@ -66,6 +69,12 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
     public GunTurretBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.GUN_TURRET_BLOCK_ENTITY,pos,state);
         this.rotation = 0;
+        this.owner = null;
+    }
+
+    public GunTurretBlockEntity(BlockPos pos, BlockState state, PlayerEntity playerEntity) {
+        this(pos, state);
+        this.owner = playerEntity;
     }
 
     @Override
@@ -131,7 +140,7 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
             );
             if (distance < lowest) {
                 BlockHitResult blockHitResult = this.getWorld().raycast(new RaycastContext(entity.getPos().add(0,1,0), this.getPos().toCenterPos(), RaycastContext.ShapeType.COLLIDER, RaycastContext.FluidHandling.NONE, entity));
-                if (blockHitResult.getType() != HitResult.Type.BLOCK) {
+                if (blockHitResult.getType() != HitResult.Type.BLOCK && isValidTarget(entity)) {
                     lowest = distance;
                     chosen = entity;
                 }
@@ -234,5 +243,26 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
             return item.isIn(ModTags.Items.VALID_TURRET_PROJECTILE);
         }
         return item.isIn(ItemTags.ARROWS);
+    }
+
+    private boolean isValidTarget(LivingEntity entity) {
+
+        if(entity.isInvulnerable() || entity.isInvisible() || entity.getType().getSpawnGroup().isPeaceful()) {
+            return false;
+        }
+
+        /*if(entity.isPlayer()) {
+            if(entity.getName()) {
+                return false;
+            }
+        }*/
+
+        return true;
+
+        /*if (entity.getGroup() == EntityGroup.UNDEAD || entity.getGroup() == EntityGroup.ILLAGER) {
+            return true;
+        }
+
+        return false;*/
     }
 }

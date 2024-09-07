@@ -4,7 +4,10 @@ import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.ActionResult;
@@ -24,7 +27,14 @@ public class GunTurretBlock extends BlockWithEntity {
 
     private static final VoxelShape SHAPE = Block.createCuboidShape(-8,0,-8,24,8,24);
 
+    private PlayerEntity owner;
 
+    @Override
+    public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
+        if (placer != null && placer.getType() == EntityType.PLAYER) {
+            owner = (PlayerEntity) placer;
+        }
+    }
 
     public GunTurretBlock(Settings settings) {
         super(settings);
@@ -58,7 +68,7 @@ public class GunTurretBlock extends BlockWithEntity {
     @Nullable
     @Override
     public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
-        return new GunTurretBlockEntity(pos, state);
+        return new GunTurretBlockEntity(pos, state, owner);
     }
 
     @Override

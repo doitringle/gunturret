@@ -1,5 +1,6 @@
 {
   "item.ringlesgunturret.gunbarrel": "Gun Barrel",
+  "item.ringlesgunturret.turretsettings":  "Turret Settings Modifier",
   "block.ringlesgunturret.gun_turret": "Gun Turret",
   "itemgroup.ringlesgunturret": "Ringle's Gun Turret",
   "container.gun_turret": "Gun Turret",

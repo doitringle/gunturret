@@ -12,9 +12,11 @@ import net.minecraft.util.Identifier;
 
 public class ModItems {
     public static final Item GUNBARREL = registerItem("gunbarrel",new Item(new FabricItemSettings()));
-
+    public static final Item TURRETSETTINGS = registerItem("turretsettings",
+            new TurretConfig(new FabricItemSettings()));
     private static void addItemsToIngredientItemGroup(FabricItemGroupEntries entries) {
         entries.add(GUNBARREL);
+        entries.add(TURRETSETTINGS);
     }
 
     private static Item registerItem(String name, Item item) {
