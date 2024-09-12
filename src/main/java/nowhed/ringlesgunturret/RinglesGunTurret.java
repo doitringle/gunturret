@@ -29,7 +29,7 @@ public class RinglesGunTurret implements ModInitializer {
 	@Override
 	public void onInitialize() {
 		if (FabricLoader.getInstance().isModLoaded("holy-reminder")) {
-			RinglesGunTurret.LOGGER.info("Holy Reminder is installed! Thanks for using my friends' mod!!");
+			RinglesGunTurret.LOGGER.info("Holy Reminder is installed! Remember: The bell tolls for thee.");
 		}
 		ModItemGroups.registerItemGroups();
 		ModItems.registerModItems();
