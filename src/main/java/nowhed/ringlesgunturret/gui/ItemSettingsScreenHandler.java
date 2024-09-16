@@ -8,7 +8,7 @@ import net.minecraft.util.Identifier;
 import nowhed.ringlesgunturret.RinglesGunTurret;
 import org.jetbrains.annotations.Nullable;
 
-public class ItemSettingsScreenHandler extends ScreenHandler {
+/*public class ItemSettingsScreenHandler extends ScreenHandler {
     private static final Identifier TEXTURE = new Identifier(RinglesGunTurret.MOD_ID, "textures/gui/generic2x2.png");
     // REPLACE LATER WITH ACTUAL GUI
 
@@ -26,3 +26,4 @@ public class ItemSettingsScreenHandler extends ScreenHandler {
         return true;
     }
 }
+*/

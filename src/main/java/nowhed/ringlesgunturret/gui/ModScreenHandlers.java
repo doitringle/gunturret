@@ -13,9 +13,9 @@ public class ModScreenHandlers {
                     new ExtendedScreenHandlerType<>(GunTurretScreenHandler::new));
 
 
-    public static final ScreenHandlerType<ItemSettingsScreenHandler> ITEM_SETTINGS_SCREEN_HANDLER =
+    /*public static final ScreenHandlerType<ItemSettingsScreenHandler> ITEM_SETTINGS_SCREEN_HANDLER =
             Registry.register(Registries.SCREEN_HANDLER, new Identifier(RinglesGunTurret.MOD_ID,"gun_turret_config"),
-                    new ExtendedScreenHandlerType<>(ItemSettingsScreenHandler::new));
+                    new ExtendedScreenHandlerType<>(ItemSettingsScreenHandler::new));*/
     public static void registerScreenHandlers() {
         RinglesGunTurret.LOGGER.info("Registering screen handlers for " + RinglesGunTurret.MOD_ID);
     }

@@ -22,7 +22,6 @@ public class PlayerEntityMixin {
     @Inject(method = "writeCustomDataToNbt", at = @At("HEAD"))
     private void injectWrite(NbtCompound nbt, CallbackInfo ci) {
         nbt.put("ringlesgunturret.playersettings", psData);
-        nbt.put
     }
     @Inject(method = "readCustomDataFromNbt", at = @At("HEAD"))
     private void injectRead(NbtCompound nbt, CallbackInfo ci) {
