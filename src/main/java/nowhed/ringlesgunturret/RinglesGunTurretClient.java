@@ -9,7 +9,6 @@ import nowhed.ringlesgunturret.block.entity.ModBlockEntities;
 import nowhed.ringlesgunturret.entity.ModEntities;
 import nowhed.ringlesgunturret.entity.client.BulletProjectileRenderer;
 import nowhed.ringlesgunturret.gui.GunTurretScreen;
-import nowhed.ringlesgunturret.gui.ItemSettingsScreen;
 import nowhed.ringlesgunturret.gui.ModScreenHandlers;
 
 public class RinglesGunTurretClient implements ClientModInitializer {

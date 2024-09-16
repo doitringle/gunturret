@@ -17,8 +17,7 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.world.World;
-import nowhed.ringlesgunturret.gui.ItemSettingsScreen;
-import nowhed.ringlesgunturret.gui.ItemSettingsScreenHandler;
+import nowhed.ringlesgunturret.RinglesGunTurret;
 import nowhed.ringlesgunturret.sound.ModSounds;
 import org.jetbrains.annotations.Nullable;
 
@@ -31,7 +30,7 @@ public class TurretConfig extends Item {
 
     @Override
     public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
-        super.use(world, user, hand);
+        /*super.use(world, user, hand);
         if (!world.isClient) {
             // This will call the createScreenHandlerFactory method from BlockWithEntity, which will return our blockEntity casted to
             // a namedScreenHandlerFactory. If your block class does not extend BlockWithEntity, it needs to implement createScreenHandlerFactory.
@@ -42,10 +41,14 @@ public class TurretConfig extends Item {
                 // With this call the server will request the client to open the appropriate Screenhandler
                 user.openHandledScreen(screenHandlerFactory);
             }
-        }
+        }*/
+
+        RinglesGunTurret.LOGGER.info("This is NOT implemented!");
+
+        return new TypedActionResult<>(ActionResult.SUCCESS, user.getStackInHand(hand));
     }
 
-    private NamedScreenHandlerFactory createScreenHandlerFactory(PlayerEntity player, Hand hand) {
+    /*private NamedScreenHandlerFactory createScreenHandlerFactory(PlayerEntity player, Hand hand) {
         EquipmentSlot slot = switch (hand) {
             case MAIN_HAND -> EquipmentSlot.MAINHAND;
             case OFF_HAND -> EquipmentSlot.OFFHAND;
@@ -59,10 +62,11 @@ public class TurretConfig extends Item {
             }
 
             @Override
-            public @Nullable ScreenHandler createMenu(int syncId, PlayerInventory playerInventory, PlayerEntity player) {
-                return new ItemSettingsScreen();
+            /*public @Nullable ScreenHandler createMenu(int syncId, PlayerInventory playerInventory, PlayerEntity player) {
+
+                return
             }
         };
         return null;
-    }
+    }*/
 }

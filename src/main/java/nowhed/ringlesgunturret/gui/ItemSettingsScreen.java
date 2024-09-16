@@ -12,7 +12,7 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
-
+/*
 @Environment(EnvType.CLIENT)
 public class ItemSettingsScreen extends HandledScreen<ItemSettingsScreenHandler> {
     PlayerEntity player;
@@ -49,4 +49,4 @@ public class ItemSettingsScreen extends HandledScreen<ItemSettingsScreenHandler>
 
     }
 
-}
+}*/
