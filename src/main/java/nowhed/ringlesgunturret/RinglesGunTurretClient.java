@@ -9,6 +9,7 @@ import nowhed.ringlesgunturret.block.entity.ModBlockEntities;
 import nowhed.ringlesgunturret.entity.ModEntities;
 import nowhed.ringlesgunturret.entity.client.BulletProjectileRenderer;
 import nowhed.ringlesgunturret.gui.GunTurretScreen;
+import nowhed.ringlesgunturret.gui.ItemSettingsScreen;
 import nowhed.ringlesgunturret.gui.ModScreenHandlers;
 
 public class RinglesGunTurretClient implements ClientModInitializer {
@@ -16,6 +17,7 @@ public class RinglesGunTurretClient implements ClientModInitializer {
     public void onInitializeClient() {
         BlockEntityRendererFactories.register(ModBlockEntities.GUN_TURRET_BLOCK_ENTITY,GunTurretEntityRenderer::new);
         HandledScreens.register(ModScreenHandlers.GUN_TURRET_SCREEN_HANDLER, GunTurretScreen::new);
+        HandledScreens.register(ModScreenHandlers.ITEM_SETTINGS_SCREEN_HANDLER, ItemSettingsScreen::new);
 
         // THIS IS SO IMPORTANT v
         EntityRendererRegistry.register(ModEntities.BULLET_PROJECTILE, BulletProjectileRenderer::new);

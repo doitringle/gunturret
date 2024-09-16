@@ -1,0 +1,36 @@
+{
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "ringlesgunturret:gun_turret_recipe"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "pattern": [
+      "ABC",
+      "ADC",
+      "EEE"
+    ],
+    "key": {
+      "A": {
+        "item": "minecraft:dispenser"
+      },
+      "B": {
+        "item": "minecraft:observer"
+      },
+      "C": {
+        "item": "minecraft:copper_block"
+      },
+      "D": {
+        "item": "minecraft:netherite_ingot"
+      },
+      "E": {
+        "item": "minecraft:piston"
+      }
+    },
+    "result": {
+      "item": "ringlesgunturret:gun_turret",
+      "count": 1
+    }
+  }
+}
