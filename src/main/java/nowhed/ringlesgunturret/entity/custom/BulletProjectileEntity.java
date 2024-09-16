@@ -24,6 +24,7 @@ import org.jetbrains.annotations.Nullable;
 public class BulletProjectileEntity extends ProjectileEntity {
    //public static final boolean canCollide
     private int age;
+    public static final float BULLETDAMAGE = 6;
     public static final int removeTime = 60;
     public BulletProjectileEntity(EntityType<? extends ProjectileEntity> entityType, World world) {
         super(entityType, world);
@@ -119,7 +120,7 @@ public class BulletProjectileEntity extends ProjectileEntity {
         World world = entity.getWorld();
 
         DamageSource damageSource = ModDamageTypes.createDamageSource(world, ModDamageTypes.SHOT_BY_TURRET);
-        entity.damage(damageSource,5f);
+        entity.damage(damageSource,BULLETDAMAGE);
         entity.addVelocity(this.getVelocity().multiply(0.1,0.1,0.1));
 
         this.discard();

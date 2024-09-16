@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+      " BC",
+      "ACC",
+      "EEE"
+  ],
+    "key": {
+      "A": {
+        "item": "minecraft:dispenser"
+      },
+      "B": {
+        "item": "minecraft:observer"
+      },
+      "C": {
+        "item": "minecraft:copper_block"
+      },
+      "E": {
+        "item": "minecraft:piston"
+      }
+    },
+    "result": {
+      "item": "ringlesgunturret:gun_turret"
+    }
+  }

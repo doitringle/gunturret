@@ -18,6 +18,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
+import nowhed.ringlesgunturret.RinglesGunTurret;
 import nowhed.ringlesgunturret.block.entity.GunTurretBlockEntity;
 import nowhed.ringlesgunturret.block.entity.ModBlockEntities;
 import nowhed.ringlesgunturret.sound.ModSounds;
@@ -73,10 +74,10 @@ public class GunTurretBlock extends BlockWithEntity {
 
     @Override
     public void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
-        if (state.isOf(newState.getBlock()) ) {
+        if (!state.getBlock().equals(newState.getBlock()) ) {
             BlockEntity blockEntity = world.getBlockEntity(pos);
-            if (blockEntity instanceof GunTurretBlockEntity ) {
-                ItemScatterer.spawn(world, pos, ((GunTurretBlockEntity) blockEntity).getItems());
+            if (blockEntity instanceof GunTurretBlockEntity GTblockEntity) {
+                ItemScatterer.spawn(world, pos, GTblockEntity.getItems());
                 world.updateComparators(pos, this);
             }
             super.onStateReplaced(state,world,pos,newState,moved);

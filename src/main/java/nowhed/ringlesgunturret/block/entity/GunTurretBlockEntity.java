@@ -154,7 +154,7 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
 
         if(chosen == null) {
 
-            shootTimer = 40;
+            shootTimer = 25;
             canPlaySound = true;
             return;
 
@@ -165,7 +165,7 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
             }
 
             if(canPlaySound) {
-                world.playSound(null, pos, ModSounds.TURRET_ROTATES, SoundCategory.BLOCKS, 0.8f, 1f);
+                world.playSound(null, pos, ModSounds.TURRET_ROTATES, SoundCategory.BLOCKS, 0.9f, 1f);
                 canPlaySound = false;
             }
 
@@ -226,7 +226,7 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
 
         projectileEntity.setPos(
                 this.getPos().getX() + 0.5 + xR * 0.9,
-                this.getPos().getY() + 1.1,
+                this.getPos().getY() + 1.2,
                 this.getPos().getZ() + 0.5 + zR * 0.9
         );
 
@@ -246,6 +246,20 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
     }
 
     private boolean isValidTarget(LivingEntity entity) {
+
+        // okay SO MY IDEA FOR THIS WAS
+        // store a variable inside every player (probably with mixins?)
+        // that the server can access
+        // which stores settings for what the gun turret should do
+        // and target
+        // resources/assets/ringlesgunturret/textures/gui/GUI_MOCKUP.png
+        // but i couldnt figure out how 1. to store the variable
+        // and 2. to modify the variable with an item (nowhed/ringlesgunturret/item/TurretConfig.java)
+        // which would open a gui when right clicked (mockup file above)
+        // and when i couldnt figure THAT out either i got discouraged so whatever
+        // it will only target hostile mobs, never players. i wanted to let players set a list of "enemies" or a list of "friendlies"
+        // where the turret will target and will not target respectively
+        // but maybe someone can help me or take over the project. i dunno. im better at modeling than programming
 
         if(entity.isInvulnerable() || entity.isInvisible() || entity.getType().getSpawnGroup().isPeaceful()) {
             return false;
