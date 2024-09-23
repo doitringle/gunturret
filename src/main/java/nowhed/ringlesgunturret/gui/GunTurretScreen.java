@@ -30,7 +30,7 @@ public class GunTurretScreen extends HandledScreen<GunTurretScreenHandler> {
                     client.setScreen(new TargetScreen(this));
                 })
                 .dimensions(width / 2 - 250, height / 2 - 50, 150, 20)
-                .tooltip(Tooltip.of(Text.translatable("gui.button.settingsTooltip")))
+                .tooltip(Tooltip.of(Text.translatable("gui.button.settings.tooltip")))
                 .build();
         if (client != null ) {
             System.out.println(handler.blockEntity.getOwner().getEntityName());

@@ -5,6 +5,19 @@
   "itemgroup.ringlesgunturret": "Ringle's Gun Turret",
   "container.gun_turret": "Gun Turret",
   "death.attack.killed_by_turret": "%1$s was shot to death by a turret",
+
   "gui.button.settings": "Targeting Settings",
-  "gui.button.settingsTooltip": "This affects all turrets you own"
+  "gui.button.settings.tooltip": "This affects all turrets you own",
+
+  "gui.button.target_hostiles": "Attack all hostile entities",
+  "gui.button.target_all": "Attack all entities",
+  "gui.button.target_all.tooltip":"Will not attack pets",
+  "gui.button.target_disable": "Attack nothing",
+  "gui.button.target_disable.tooltip":"This disables all turrets",
+  "gui.button.target_onlyplayers":"Attack only players",
+
+  "gui.text.players_settings":"Players settings",
+  "gui.textfield.player_names.tooltip":"Separate names by comma",
+  "gui.button.whitelist":"Attack ONLY these players",
+  "gui.button.blacklist":"Attack all BUT these players"
 }
