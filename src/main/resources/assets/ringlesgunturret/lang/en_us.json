@@ -10,6 +10,7 @@
   "gui.button.settings.tooltip": "This affects all turrets you own",
 
   "gui.button.target_hostiles": "Attack all hostile entities",
+  "gui.button.target_hostiles.tooltip": "This includes players set",
   "gui.button.target_all": "Attack all entities",
   "gui.button.target_all.tooltip":"Will not attack pets",
   "gui.button.target_disable": "Attack nothing",

@@ -33,8 +33,6 @@ public class GunTurretScreen extends HandledScreen<GunTurretScreenHandler> {
                 .tooltip(Tooltip.of(Text.translatable("gui.button.settings.tooltip")))
                 .build();
         if (client != null ) {
-            System.out.println(handler.blockEntity.getOwner().getEntityName());
-            System.out.println(client.player.getEntityName());
             if (handler.blockEntity.getOwner().getEntityName().equals(client.player.getEntityName())) {
                 addDrawableChild(button1);
             }
