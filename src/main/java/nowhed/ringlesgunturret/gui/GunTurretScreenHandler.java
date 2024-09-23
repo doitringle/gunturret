@@ -23,6 +23,7 @@ public class GunTurretScreenHandler extends ScreenHandler {
         this(syncId,inventory, inventory.player.getWorld().getBlockEntity(buf.readBlockPos()));
     }
 
+
     public GunTurretScreenHandler(int syncId, PlayerInventory playerInventory, BlockEntity blockEntity) {
         super(ModScreenHandlers.GUN_TURRET_SCREEN_HANDLER, syncId);
         checkSize((Inventory) blockEntity, 4);
@@ -40,6 +41,8 @@ public class GunTurretScreenHandler extends ScreenHandler {
 
         addPlayerInventory(playerInventory);
         addPlayerHotbar(playerInventory);
+
+
 
     }
 

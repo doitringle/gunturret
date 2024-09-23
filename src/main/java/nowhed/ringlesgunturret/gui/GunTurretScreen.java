@@ -3,6 +3,8 @@ package nowhed.ringlesgunturret.gui;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
+import net.minecraft.client.gui.tooltip.Tooltip;
+import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -19,9 +21,24 @@ public class GunTurretScreen extends HandledScreen<GunTurretScreenHandler> {
         public GunTurretScreen(GunTurretScreenHandler handler, PlayerInventory inventory, Text title) {
             super(handler,inventory,getPositionText(handler).orElse(title));
         }
+    public ButtonWidget button1;
     @Override
     protected void init() {
         super.init();
+
+        button1 = ButtonWidget.builder(Text.translatable("gui.button.settings"), button -> {
+                    client.setScreen(new TargetScreen(this));
+                })
+                .dimensions(width / 2 - 250, height / 2 - 50, 150, 20)
+                .tooltip(Tooltip.of(Text.translatable("gui.button.settingsTooltip")))
+                .build();
+        if (client != null ) {
+            System.out.println(handler.blockEntity.getOwner().getEntityName());
+            System.out.println(client.player.getEntityName());
+            if (handler.blockEntity.getOwner().getEntityName().equals(client.player.getEntityName())) {
+                addDrawableChild(button1);
+            }
+        }
     }
 
     @Override
