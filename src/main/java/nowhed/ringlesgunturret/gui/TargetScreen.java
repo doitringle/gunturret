@@ -7,7 +7,6 @@ import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.text.Text;
 
-@Environment(EnvType.CLIENT)
 public class TargetScreen extends Screen {
 
     private final Screen parent;
@@ -22,7 +21,7 @@ public class TargetScreen extends Screen {
     public ButtonWidget target_disable;
     public ButtonWidget target_onlyplayers;
 
-    public String selection = "hostiles";
+    public String selection;
 
 
     @Override
@@ -60,7 +59,7 @@ public class TargetScreen extends Screen {
                 .build();
 
         updateButton(selection);
-
+        // add leftside buttons
         addDrawableChild(target_all);
         addDrawableChild(target_hostiles);
         addDrawableChild(target_onlyplayers);
