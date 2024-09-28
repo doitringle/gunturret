@@ -47,6 +47,8 @@ public class RinglesGunTurret implements ModInitializer {
 	}
 
 	public static void registerEvents() {
+
+
 		UseBlockCallback.EVENT.register((player, world, hand, hitResult) -> {
 			if (hitResult.getType() != BlockHitResult.Type.BLOCK) {
 				return ActionResult.PASS;

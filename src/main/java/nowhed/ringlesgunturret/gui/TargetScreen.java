@@ -1,6 +1,7 @@
 package nowhed.ringlesgunturret.gui;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -59,7 +60,7 @@ public class TargetScreen extends Screen {
                 .build();
 
         updateButton(selection);
-        // add leftside buttons
+        // add left side buttons
         addDrawableChild(target_all);
         addDrawableChild(target_hostiles);
         addDrawableChild(target_onlyplayers);
@@ -71,6 +72,7 @@ public class TargetScreen extends Screen {
 
     @Override
     public void close() {
+
         client.setScreen(parent);
     }
 
@@ -83,6 +85,9 @@ public class TargetScreen extends Screen {
 
     public void updateButton(String sel) {
         selection = sel;
+
+
+
         //this is really quite terrible, but I didn't feel like doing it good
         target_all.active = true;
         target_hostiles.active = true;
