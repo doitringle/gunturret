@@ -1,6 +1,6 @@
 package nowhed.ringlesgunturret.player;
 
-import com.mojang.datafixers.types.Type;
+
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.RegistryWrapper;
@@ -10,12 +10,11 @@ import net.minecraft.world.PersistentStateManager;
 import net.minecraft.world.World;
 import nowhed.ringlesgunturret.RinglesGunTurret;
 import org.jetbrains.annotations.NotNull;
-
 import java.util.HashMap;
 import java.util.UUID;
 
 public class StateSaver extends PersistentState {
-
+    //https://fabricmc.net/wiki/tutorial:persistent_states
 
 
     public HashMap<UUID, PlayerData> players = new HashMap<>();
@@ -23,19 +22,13 @@ public class StateSaver extends PersistentState {
     public static PlayerData getPlayerState(LivingEntity player) {
         StateSaver serverState = getServerState(player.getWorld().getServer());
 
-        // Either get the player by the uuid, or we don't have data for him yet, make a new player state
+        // Either get the player by the uuid, or we don't have data for them yet, make a new player state
         PlayerData playerState = serverState.players.computeIfAbsent(player.getUuid(), uuid -> new PlayerData());
 
         return playerState;
     }
 
-    private static Type<StateSaver> type = new Type<>(
-            StateSaver::new, // If there's no 'StateSaverAndLoader' yet create one
-            StateSaver::createFromNbt, // If there is a 'StateSaverAndLoader' NBT, parse it with 'createFromNbt'
-            null // Supposed to be an 'DataFixTypes' enum, but we can just pass null
-    );
-
-    public static StateSaver createFromNbt(NbtCompound tag, RegistryWrapper.WrapperLookup registryLookup) {
+    public static StateSaver createFromNbt(NbtCompound tag) {
         StateSaver state = new StateSaver();
 
         NbtCompound playersNbt = tag.getCompound("players");
@@ -43,6 +36,9 @@ public class StateSaver extends PersistentState {
             PlayerData playerData = new PlayerData();
 
             playerData.targetSelection = playersNbt.getCompound(key).getString("targetSelection");
+            playerData.playerList = playersNbt.getCompound(key).getString("playerList");
+            playerData.whitelist = playersNbt.getCompound(key).getBoolean("whitelist");
+
 
             UUID uuid = UUID.fromString(key);
             state.players.put(uuid, playerData);
@@ -51,14 +47,17 @@ public class StateSaver extends PersistentState {
         return state;
     }
 
-    public static @NotNull StateSaver getServerState(MinecraftServer server) {
+    public static StateSaver getServerState(MinecraftServer server) {
         // (Note: arbitrary choice to use 'World.OVERWORLD' instead of 'World.END' or 'World.NETHER'.  Any work)
         PersistentStateManager persistentStateManager = server.getWorld(World.OVERWORLD).getPersistentStateManager();
 
         // The first time the following 'getOrCreate' function is called, it creates a brand new 'StateSaverAndLoader' and
         // stores it inside the 'PersistentStateManager'. The subsequent calls to 'getOrCreate' pass in the saved
         // 'StateSaverAndLoader' NBT on disk to our function 'StateSaverAndLoader::createFromNbt'.
-        StateSaver state = persistentStateManager.getOrCreate(type, RinglesGunTurret.MOD_ID);
+        StateSaver state = persistentStateManager.getOrCreate(
+                StateSaver::createFromNbt,
+                StateSaver::new,
+                RinglesGunTurret.MOD_ID);
 
         // If state is not marked dirty, when Minecraft closes, 'writeNbt' won't be called and therefore nothing will be saved.
         // Technically it's 'cleaner' if you only mark state as dirty when there was actually a change, but the vast majority
@@ -72,6 +71,18 @@ public class StateSaver extends PersistentState {
 
     @Override
     public NbtCompound writeNbt(NbtCompound nbt) {
-       nbt.putString("")
+       NbtCompound playersNbt = new NbtCompound();
+
+       players.forEach((uuid, playerData) -> {
+           NbtCompound playerNbt = new NbtCompound();
+           playerNbt.putString("targetSelection",playerData.targetSelection);
+           playerNbt.putString("playerList",playerData.playerList);
+           playerNbt.putBoolean("whitelist",playerData.whitelist);
+           System.out.println(playerData.targetSelection);
+
+           playersNbt.put(uuid.toString(), playerNbt);
+       });
+       nbt.put("players",playersNbt);
+       return nbt;
     }
 }

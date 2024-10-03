@@ -107,7 +107,7 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
 
     @Override
     public @Nullable ScreenHandler createMenu(int syncId, PlayerInventory playerInventory, PlayerEntity player) {
-        return new GunTurretScreenHandler(syncId, playerInventory,this);
+        return new GunTurretScreenHandler(syncId, playerInventory, this);
     }
 
     @Override

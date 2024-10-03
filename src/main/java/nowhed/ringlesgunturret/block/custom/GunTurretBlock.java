@@ -10,6 +10,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.sound.SoundCategory;
+import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.ItemScatterer;
@@ -53,7 +54,16 @@ public class GunTurretBlock extends BlockWithEntity {
 
     @Override
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+
         if (!world.isClient) {
+
+            if(owner != null && !player.getUuid().equals(owner.getUuid())){
+                player.sendMessage(Text.translatable("block.ringlesgunturret.no_access_message"));
+                return ActionResult.FAIL;
+                // anyone can access a null-owner gun turret.
+                // not sure how that would be created but whatever
+            }
+
             world.playSound(null, player.getBlockPos(), ModSounds.OPEN, SoundCategory.BLOCKS, 0.5f, 1f);
             // This will call the createScreenHandlerFactory method from BlockWithEntity, which will return our blockEntity casted to
             // a namedScreenHandlerFactory. If your block class does not extend BlockWithEntity, it needs to implement createScreenHandlerFactory.

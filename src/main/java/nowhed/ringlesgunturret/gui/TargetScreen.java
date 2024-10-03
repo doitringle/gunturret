@@ -2,17 +2,20 @@ package nowhed.ringlesgunturret.gui;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.text.Text;
 
-public class TargetScreen extends Screen {
+public class TargetScreen extends HandledScreen<TargetScreenHandler> {
 
     private final Screen parent;
-    protected TargetScreen(Screen parent) {
-        super(Text.literal("TEST"));
+    protected TargetScreen(Screen parent, TargetScreenHandler handler, PlayerInventory inventory) {
+        super(handler, inventory, Text.literal("TEST"));
         this.parent = parent;
     }
 
@@ -68,6 +71,11 @@ public class TargetScreen extends Screen {
 
         System.out.println("HEIGHT:" + height);
         System.out.println("WIDTH:" + width);
+    }
+
+    @Override
+    protected void drawBackground(DrawContext context, float delta, int mouseX, int mouseY) {
+
     }
 
     @Override

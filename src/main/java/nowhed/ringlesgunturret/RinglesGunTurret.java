@@ -2,11 +2,22 @@ package nowhed.ringlesgunturret;
 
 import net.fabricmc.api.ModInitializer;
 
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
+import net.fabricmc.fabric.api.event.player.UseItemCallback;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.client.option.KeyBinding;
+import net.minecraft.network.PacketByteBuf;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import nowhed.ringlesgunturret.block.ModBlocks;
@@ -16,9 +27,13 @@ import nowhed.ringlesgunturret.entity.ModEntities;
 import nowhed.ringlesgunturret.gui.ModScreenHandlers;
 import nowhed.ringlesgunturret.item.ModItemGroups;
 import nowhed.ringlesgunturret.item.ModItems;
+import nowhed.ringlesgunturret.player.PlayerData;
+import nowhed.ringlesgunturret.player.StateSaver;
 import nowhed.ringlesgunturret.sound.ModSounds;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.swing.plaf.nimbus.State;
 
 public class RinglesGunTurret implements ModInitializer {
 	public static final String MOD_ID = "ringlesgunturret";
@@ -43,11 +58,31 @@ public class RinglesGunTurret implements ModInitializer {
 
 
 		LOGGER.info("oeugh...");
-
 	}
+
+
+	public static final Identifier TARGET_SELECTION = new Identifier(MOD_ID, "target_selection");
 
 	public static void registerEvents() {
 
+		UseItemCallback.EVENT.register(((player, world, hand) -> {
+			if (player.getActiveItem().isOf(ModItems.TURRETSETTINGS)) {
+
+				PlayerData playerState = StateSaver.getPlayerState(player);
+				playerState.targetSelection = "hsadkjhfbdsfjhkgbh" + Math.random();
+				MinecraftServer server = world.getServer();
+
+				PacketByteBuf data = PacketByteBufs.create();
+				data.writeString(playerState.targetSelection);
+				ServerPlayerEntity playerEntity = server.getPlayerManager().getPlayer(player.getUuid());
+				server.execute(() -> {
+					ServerPlayNetworking.send(playerEntity, TARGET_SELECTION, data);
+					player.sendMessage(Text.literal(playerState.targetSelection));
+				});
+
+			}
+			return new TypedActionResult<>(ActionResult.PASS, player.getStackInHand(hand));
+		}));
 
 		UseBlockCallback.EVENT.register((player, world, hand, hitResult) -> {
 			if (hitResult.getType() != BlockHitResult.Type.BLOCK) {

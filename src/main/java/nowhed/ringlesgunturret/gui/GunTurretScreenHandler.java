@@ -14,7 +14,6 @@ import nowhed.ringlesgunturret.sound.ModSounds;
 
 public class GunTurretScreenHandler extends ScreenHandler {
 
-    private static final int NUM_COLUMNS = 2;
     private final Inventory inventory;
     public final GunTurretBlockEntity blockEntity;
     private final int rows;
@@ -32,19 +31,17 @@ public class GunTurretScreenHandler extends ScreenHandler {
         inventory.onOpen(playerInventory.player);
         this.blockEntity = ((GunTurretBlockEntity) blockEntity);
 
-        this.addSlot(new Slot(inventory,0,72,26));
-        this.addSlot(new Slot(inventory,1,90,26));
-        this.addSlot(new Slot(inventory,2,72,44));
-        this.addSlot(new Slot(inventory,3,90,44)); // this should work...?
-
-
+        this.addSlot(new Slot(inventory, 0, 72, 26));
+        this.addSlot(new Slot(inventory, 1, 90, 26));
+        this.addSlot(new Slot(inventory, 2, 72, 44));
+        this.addSlot(new Slot(inventory, 3, 90, 44));
 
         addPlayerInventory(playerInventory);
         addPlayerHotbar(playerInventory);
 
 
-
     }
+
 
 
     @Override

@@ -5,6 +5,7 @@
   "itemgroup.ringlesgunturret": "Ringle's Gun Turret",
   "container.gun_turret": "Gun Turret",
   "death.attack.killed_by_turret": "%1$s was shot to death by a turret",
+  "block.ringlesgunturret.no_access_message": "You don't have access to that gun turret.",
 
   "gui.button.settings": "Targeting Settings",
   "gui.button.settings.tooltip": "This affects all turrets you own",
@@ -19,6 +20,7 @@
 
   "gui.text.players_settings":"Players settings",
   "gui.textfield.player_names.tooltip":"Separate names by comma",
+  "gui.ringlesgunturret.button.confirm": "Confirm",
   "gui.button.whitelist":"Attack ONLY these players",
   "gui.button.blacklist":"Attack all BUT these players"
 }
