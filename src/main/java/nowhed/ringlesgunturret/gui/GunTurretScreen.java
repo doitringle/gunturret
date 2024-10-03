@@ -23,16 +23,20 @@ public class GunTurretScreen extends HandledScreen<GunTurretScreenHandler> {
     public TextFieldWidget player_name_field;
     public ButtonWidget player_name_confirm;
     public TextWidget name_field_label;
+    public TextWidget main_label;
     public ButtonWidget target_hostiles;
     public ButtonWidget target_all;
     public ButtonWidget target_disable;
     public ButtonWidget target_onlyplayers;
 
+    public ButtonWidget whitelist;
+    public ButtonWidget blacklist;
+
 
     public GunTurretScreen(GunTurretScreenHandler handler, PlayerInventory inventory, Text title) {
         super(handler,inventory,getPositionText(handler).orElse(title));
     }
-    public ButtonWidget button1;
+
     @Override
     protected void init() {
         super.init();
@@ -48,46 +52,68 @@ public class GunTurretScreen extends HandledScreen<GunTurretScreenHandler> {
 
         //this goes x,y,w,h
 
-        name_field_label = new TextWidget(gw(400),gh(25),gw(125),gh(20),Text.translatable("gui.text.players_settings"),textRenderer);
+        name_field_label = new TextWidget(gw(410),gh(50),gw(125),gh(25),Text.translatable("gui.text.players_settings"),textRenderer);
         addDrawableChild(name_field_label);
 
-        player_name_field = new TextFieldWidget(textRenderer,gw(425),gh(50),gw(150),gh(20),Text.literal(""));
+        main_label = new TextWidget(gw(75),gh(50),gw(100),gh(25),Text.translatable("gui.text.main_label"),textRenderer);
+        addDrawableChild(main_label);
+
+        player_name_field = new TextFieldWidget(textRenderer,gw(425),gh(75),gw(150),gh(20),Text.literal(""));
         player_name_field.setTooltip(Tooltip.of(Text.translatable("gui.textfield.player_names.tooltip")));
         addDrawableChild(player_name_field);
+
+        whitelist = ButtonWidget.builder(Text.translatable("gui.button.whitelist"), button -> {
+                    updateButtonPlayers(false);
+                })
+                .dimensions(gw(425),gh(100),gw(150),gh(20))
+                .build();
+        addDrawableChild(whitelist);
+
+        blacklist = ButtonWidget.builder(Text.translatable("gui.button.blacklist"), button -> {
+                    updateButtonPlayers(true);
+                })
+                .dimensions(gw(425),gh(125),gw(150),gh(20))
+                .build();
+        addDrawableChild(blacklist);
+
 
         player_name_confirm = ButtonWidget.builder(Text.literal("✓"), button -> {
                     System.out.println(player_name_field.getText());
                 })
-                .dimensions(gw(580),gh(50),gh(25),gh(25))
+                .dimensions(player_name_field.getWidth()+player_name_field.getX()+5,player_name_field.getY()-2,gh(23),gh(23))
                 .build();
+
         addDrawableChild(player_name_confirm);
 
         target_all = ButtonWidget.builder(Text.translatable("gui.button.target_all"), button -> {
                     updateButton("all");
                 })
-                .dimensions(50,75,150,20)
+                .dimensions(gw(50),gh(75),gw(150),gh(20))
                 .tooltip(Tooltip.of(Text.translatable("gui.button.target_all.tooltip")))
                 .build();
 
         target_hostiles = ButtonWidget.builder(Text.translatable("gui.button.target_hostiles"), button -> {
                     updateButton("hostiles");
                 })
-                .dimensions(50,100,150,20)
+                .dimensions(gw(50),gh(100),gw(150),gh(20))
                 .tooltip(Tooltip.of(Text.translatable("gui.button.target_hostiles.tooltip")))
                 .build();
         target_onlyplayers = ButtonWidget.builder(Text.translatable("gui.button.target_onlyplayers"), button -> {
                     updateButton("onlyplayers");
                 })
-                .dimensions(50,125,150,20)
+                .dimensions(gw(50),gh(125),gw(150),gh(20))
                 .build();
         target_disable = ButtonWidget.builder(Text.translatable("gui.button.target_disable"), button -> {
+
                     updateButton("disable");
                 })
-                .dimensions(50,150,150,20)
+                .dimensions(gw(50),gh(150),gw(150),gh(20))
                 .tooltip(Tooltip.of(Text.translatable("gui.button.target_disable.tooltip")))
                 .build();
 
-        updateButton("hostiles");
+        updateButton(this.handler.getPlayerData().targetSelection, false);
+        update
+
         // add left side buttons
         addDrawableChild(target_all);
         addDrawableChild(target_hostiles);
@@ -142,27 +168,62 @@ public class GunTurretScreen extends HandledScreen<GunTurretScreenHandler> {
         super.close();
     }
 
-    public void updateButton(String sel) {
+    public void updateButton(String sel){
+        updateButton(sel, true);
+    }
+    public void updateButton(String sel,Boolean press) {
 
         //this is really quite terrible, but I didn't feel like doing it good
         target_all.active = true;
         target_hostiles.active = true;
         target_onlyplayers.active = true;
         target_disable.active = true;
-
+        int id = 0;
         switch(sel) {
             case "all":
+                id=0;
                 target_all.active = false;
                 break;
             case "hostiles":
+                id=1;
                 target_hostiles.active = false;
                 break;
             case "onlyplayers":
+                id=2;
                 target_onlyplayers.active = false;
                 break;
-            default:
+            default: // "disable"
+                id=3;
                 target_disable.active = false;
                 break;
+        }
+
+        if(press) {
+            this.handler.onButtonClick(this.client.player, id);
+            this.client.interactionManager.clickButton(this.handler.syncId, id);
+        }
+
+
+    }
+    public void updateButtonPlayers(Boolean isBlacklist){
+        updateButtonPlayers(isBlacklist, true);
+    }
+    public void updateButtonPlayers(Boolean isBlacklist,Boolean press) {
+        // true = blacklist false = whitelist
+        int id;
+        if(isBlacklist) {
+            blacklist.active = false;
+            whitelist.active = true;
+            id=4;
+        } else {
+            blacklist.active = true;
+            whitelist.active = false;
+            id=5;
+        }
+
+        if(press) {
+            this.handler.onButtonClick(this.client.player, id);
+            this.client.interactionManager.clickButton(this.handler.syncId, id);
         }
 
     }

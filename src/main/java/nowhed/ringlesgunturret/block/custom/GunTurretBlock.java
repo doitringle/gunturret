@@ -9,6 +9,8 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.NamedScreenHandlerFactory;
+import net.minecraft.screen.ScreenHandlerContext;
+import net.minecraft.screen.SimpleNamedScreenHandlerFactory;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
@@ -22,6 +24,7 @@ import net.minecraft.world.World;
 import nowhed.ringlesgunturret.RinglesGunTurret;
 import nowhed.ringlesgunturret.block.entity.GunTurretBlockEntity;
 import nowhed.ringlesgunturret.block.entity.ModBlockEntities;
+import nowhed.ringlesgunturret.gui.GunTurretScreenHandler;
 import nowhed.ringlesgunturret.sound.ModSounds;
 import org.jetbrains.annotations.Nullable;
 
@@ -65,8 +68,11 @@ public class GunTurretBlock extends BlockWithEntity {
             }
 
             world.playSound(null, player.getBlockPos(), ModSounds.OPEN, SoundCategory.BLOCKS, 0.5f, 1f);
+
             // This will call the createScreenHandlerFactory method from BlockWithEntity, which will return our blockEntity casted to
             // a namedScreenHandlerFactory. If your block class does not extend BlockWithEntity, it needs to implement createScreenHandlerFactory.
+
+
             NamedScreenHandlerFactory screenHandlerFactory = state.createScreenHandlerFactory(world, pos);
 
             if (screenHandlerFactory != null) {
@@ -75,6 +81,19 @@ public class GunTurretBlock extends BlockWithEntity {
             }
         }        return ActionResult.SUCCESS;
     }
+
+    /*@Nullable
+    @Override
+    public NamedScreenHandlerFactory createScreenHandlerFactory(BlockState state, World world, BlockPos pos) {
+        BlockEntity blockEntity = world.getBlockEntity(pos);
+        if (blockEntity instanceof GunTurretBlockEntity) {
+            return new NamedScreenHandlerFactory(
+                    (syncId, inventory, player) -> new GunTurretScreenHandler(syncId, inventory, blockEntity, ScreenHandlerContext.create(world, pos)), Text.translatable("container.gun_turret")
+            );
+        } else {
+            return null;
+        }
+    }*/
 
     @Nullable
     @Override

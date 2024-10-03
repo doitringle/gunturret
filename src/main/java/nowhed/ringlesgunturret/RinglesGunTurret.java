@@ -1,5 +1,7 @@
 package nowhed.ringlesgunturret;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.api.ModInitializer;
 
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -63,13 +65,22 @@ public class RinglesGunTurret implements ModInitializer {
 
 	public static final Identifier TARGET_SELECTION = new Identifier(MOD_ID, "target_selection");
 
+
 	public static void registerEvents() {
 
-		UseItemCallback.EVENT.register(((player, world, hand) -> {
-			if (player.getActiveItem().isOf(ModItems.TURRETSETTINGS)) {
-
+		/*UseItemCallback.EVENT.register(((player, world, hand) -> {
+			if (!world.isClient() && player.getStackInHand(hand).isOf(ModItems.TURRETSETTINGS)) {
 				PlayerData playerState = StateSaver.getPlayerState(player);
-				playerState.targetSelection = "hsadkjhfbdsfjhkgbh" + Math.random();
+				MinecraftServer server = world.getServer();
+				server.execute(() -> {
+					player.sendMessage(Text.literal(playerState.targetSelection));
+				});
+			}
+			if (!world.isClient() && player.getStackInHand(hand).isOf(ModItems.GUNBARREL)) {
+
+				StateSaver serverState = StateSaver.getServerState(world.getServer());
+				PlayerData playerState = StateSaver.getPlayerState(player);
+				playerState.targetSelection = "TEST" + Math.random();
 				MinecraftServer server = world.getServer();
 
 				PacketByteBuf data = PacketByteBufs.create();
@@ -82,7 +93,7 @@ public class RinglesGunTurret implements ModInitializer {
 
 			}
 			return new TypedActionResult<>(ActionResult.PASS, player.getStackInHand(hand));
-		}));
+		}));*/
 
 		UseBlockCallback.EVENT.register((player, world, hand, hitResult) -> {
 			if (hitResult.getType() != BlockHitResult.Type.BLOCK) {

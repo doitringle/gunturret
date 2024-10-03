@@ -16,6 +16,7 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.screen.Property;
 import net.minecraft.screen.ScreenHandler;
+import net.minecraft.screen.ScreenHandlerContext;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.text.Text;
@@ -107,7 +108,7 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
 
     @Override
     public @Nullable ScreenHandler createMenu(int syncId, PlayerInventory playerInventory, PlayerEntity player) {
-        return new GunTurretScreenHandler(syncId, playerInventory, this);
+        return new GunTurretScreenHandler(syncId, playerInventory, this, ScreenHandlerContext.create(world, pos));
     }
 
     @Override

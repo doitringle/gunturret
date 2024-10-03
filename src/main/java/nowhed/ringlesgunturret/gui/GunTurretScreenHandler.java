@@ -7,28 +7,40 @@ import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.ScreenHandler;
+import net.minecraft.screen.ScreenHandlerContext;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.sound.SoundCategory;
+import net.minecraft.text.Text;
+import net.minecraft.world.World;
 import nowhed.ringlesgunturret.block.entity.GunTurretBlockEntity;
+import nowhed.ringlesgunturret.player.PlayerData;
+import nowhed.ringlesgunturret.player.StateSaver;
 import nowhed.ringlesgunturret.sound.ModSounds;
+
+import java.util.Optional;
 
 public class GunTurretScreenHandler extends ScreenHandler {
 
     private final Inventory inventory;
     public final GunTurretBlockEntity blockEntity;
     private final int rows;
+    private PlayerEntity playerEntity;
+    private final ScreenHandlerContext context;
+
 
     public GunTurretScreenHandler(int syncId, PlayerInventory inventory, PacketByteBuf buf) {
-        this(syncId,inventory, inventory.player.getWorld().getBlockEntity(buf.readBlockPos()));
+        this(syncId,inventory, inventory.player.getWorld().getBlockEntity(buf.readBlockPos()), ScreenHandlerContext.EMPTY);
     }
 
 
-    public GunTurretScreenHandler(int syncId, PlayerInventory playerInventory, BlockEntity blockEntity) {
+    public GunTurretScreenHandler(int syncId, PlayerInventory playerInventory, BlockEntity blockEntity, ScreenHandlerContext context) {
         super(ModScreenHandlers.GUN_TURRET_SCREEN_HANDLER, syncId);
         checkSize((Inventory) blockEntity, 4);
         this.inventory = ((Inventory) blockEntity);
         this.rows = 2;
-        inventory.onOpen(playerInventory.player);
+        this.playerEntity = playerInventory.player;
+        this.context = context;
+        inventory.onOpen(playerEntity);
         this.blockEntity = ((GunTurretBlockEntity) blockEntity);
 
         this.addSlot(new Slot(inventory, 0, 72, 26));
@@ -102,4 +114,23 @@ public class GunTurretScreenHandler extends ScreenHandler {
     public int getRows() {
         return this.rows;
     }
+
+    public PlayerData getPlayerData() {
+        Optional<PlayerData> result = this.context.get((world, pos) -> {
+            PlayerData playerState = StateSaver.getPlayerState(playerEntity, world);
+            return playerState;
+        });
+        return result.orElse(null);
+    }
+
+    @Override
+    public boolean onButtonClick(PlayerEntity player, int id) {
+        System.out.println(id);
+        this.context.run((world, pos) -> {
+            // nothing right now!
+        });
+        return true;
+    }
+
+
 }

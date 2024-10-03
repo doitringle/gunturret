@@ -3,13 +3,11 @@ package nowhed.ringlesgunturret.player;
 
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.PersistentState;
 import net.minecraft.world.PersistentStateManager;
 import net.minecraft.world.World;
 import nowhed.ringlesgunturret.RinglesGunTurret;
-import org.jetbrains.annotations.NotNull;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -27,6 +25,11 @@ public class StateSaver extends PersistentState {
 
         return playerState;
     }
+    public static PlayerData getPlayerState(LivingEntity player, World world) {
+        StateSaver serverState = getServerState(world.getServer());
+        PlayerData playerState = serverState.players.computeIfAbsent(player.getUuid(), uuid -> new PlayerData());
+        return playerState;
+    }
 
     public static StateSaver createFromNbt(NbtCompound tag) {
         StateSaver state = new StateSaver();
@@ -37,7 +40,7 @@ public class StateSaver extends PersistentState {
 
             playerData.targetSelection = playersNbt.getCompound(key).getString("targetSelection");
             playerData.playerList = playersNbt.getCompound(key).getString("playerList");
-            playerData.whitelist = playersNbt.getCompound(key).getBoolean("whitelist");
+            playerData.blacklist = playersNbt.getCompound(key).getBoolean("blacklist");
 
 
             UUID uuid = UUID.fromString(key);
@@ -77,7 +80,7 @@ public class StateSaver extends PersistentState {
            NbtCompound playerNbt = new NbtCompound();
            playerNbt.putString("targetSelection",playerData.targetSelection);
            playerNbt.putString("playerList",playerData.playerList);
-           playerNbt.putBoolean("whitelist",playerData.whitelist);
+           playerNbt.putBoolean("blacklist",playerData.blacklist);
            System.out.println(playerData.targetSelection);
 
            playersNbt.put(uuid.toString(), playerNbt);
