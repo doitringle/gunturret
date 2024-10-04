@@ -83,7 +83,7 @@ public class StateSaver extends PersistentState {
            playerNbt.putString("playerList",playerData.playerList);
            playerNbt.putBoolean("blacklist",playerData.blacklist);
 
-           System.out.println(playerData.targetSelection);
+           //System.out.println(playerData.targetSelection);
 
            playersNbt.put(uuid.toString(), playerNbt);
        });

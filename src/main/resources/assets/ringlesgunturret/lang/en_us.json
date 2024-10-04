@@ -5,6 +5,7 @@
   "itemgroup.ringlesgunturret": "Ringle's Gun Turret",
   "container.gun_turret": "Gun Turret",
   "death.attack.killed_by_turret": "%1$s was shot to death by a turret",
+  "death.attack.killed_by_turret.player": "%1$s was shot to death by %2$s's turret",
   "block.ringlesgunturret.no_access_message": "You don't have access to that gun turret.",
 
   "gui.button.settings": "Targeting Settings",
@@ -24,5 +25,7 @@
   "gui.button.whitelist":"Attack ONLY these players",
   "gui.button.blacklist":"Attack all BUT these players",
 
-  "stat.ringlesgunturret.kills_with_gun_turret": "Kills with gun turret"
+  "stat.ringlesgunturret.kills_with_gun_turret": "Kills with gun turret",
+
+  "message.warning.targetall": "Warning: The turret on this setting will attack villagers, sheep, horses, allays, and other passive mobs. It will not attack pets except for angry wolves."
 }

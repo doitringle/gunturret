@@ -1,13 +1,16 @@
 package nowhed.ringlesgunturret.block.entity;
 
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerBlockEntityEvents;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
-import net.minecraft.entity.EntityGroup;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.mob.HostileEntity;
+import net.minecraft.entity.mob.PiglinEntity;
+import net.minecraft.entity.passive.*;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.entity.projectile.ProjectileEntity;
@@ -35,7 +38,6 @@ import nowhed.ringlesgunturret.sound.ModSounds;
 import nowhed.ringlesgunturret.util.ModTags;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
 import java.util.List;
 
 public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenHandlerFactory, ImplementedInventory, BlockEntityTicker {
@@ -55,6 +57,7 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
 
     private PlayerEntity owner;
     private float rotation;
+    private float clientRotation;
     private int shootTimer = 60;
     private int cooldown = 2;
 
@@ -73,11 +76,13 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
 
     public void addRotation(float value) {
         this.rotation += value;
+
     }
 
     public GunTurretBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.GUN_TURRET_BLOCK_ENTITY,pos,state);
         this.rotation = 0;
+        this.clientRotation = 0;
         this.owner = null;
     }
 
@@ -104,6 +109,15 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
         Inventories.writeNbt(nbt, this.inventory);
     }
 
+    @Environment(EnvType.CLIENT)
+    public void setClientRotation(Float rot) {
+        this.clientRotation = rot;
+    }
+
+    @Environment(EnvType.CLIENT)
+    public float getClientRotation() {
+        return this.clientRotation;
+    }
 
     @Override
     public void writeScreenOpeningData(ServerPlayerEntity player, PacketByteBuf buf) {
@@ -128,9 +142,8 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
     @Override
     public void tick(World world, BlockPos pos, BlockState state, BlockEntity blockEntity) {
 
-        /*if (world.isClient()) {return;}
-        this one line of code destroyed my entire afternoon
-        */
+        if (world.isClient()) {return;}
+       // this one line of code destroyed my entire afternoon
 
 
         GunTurretBlockEntity thisEntity = (GunTurretBlockEntity) blockEntity;
@@ -143,7 +156,14 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
         double lowest = 999;
         LivingEntity chosen = null;
         for(LivingEntity entity : livingEntities) {
-            if (!isValidTarget(entity)) continue;
+            //Long startTime = System.nanoTime();
+            boolean valid = isValidTarget(entity);
+            //Long estimatedTime = System.nanoTime();
+            //System.out.println("Time to check: " + (estimatedTime - startTime));
+            if (!valid) {
+                continue;
+            }
+
             double distance = Math.sqrt(
                     Math.pow((entity.getX() - pos.getX()),2) +
                     Math.pow((entity.getZ() - pos.getZ()),2)
@@ -161,7 +181,6 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
 
 
         }
-
 
         if(chosen == null) {
 
@@ -274,16 +293,20 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
 
     private boolean isValidTarget(LivingEntity entity) {
 
+        // check for valid targets based on player settings
+
         String[] namesList = playerList.split(",");
 
-        System.out.println(entity.getName() + ":" + entity.getHeight());
+        //System.out.println("HEIGHT : " + entity.getName() + ":" + entity.getHeight());
+        //System.out.println("EYE_Y : " + entity.getName() + ":" + (entity.getEyeY() - this.getPos().getY()));
 
-        if(entity.isInvulnerable() || entity.getHeight() < 0.6f || (entity.isInvisible())) {
+
+        if(entity.isInvulnerable() || entity.getEyeY() - this.getPos().getY() < 0.6f || entity.isInvisible()) {
             return false;
         }
 
         // blacklist TRUE = attack ALL players whose names are not in namesList
-        // blacklist FALSe = attack ONLY players whose names are in namesList
+        // blacklist FALSE = attack ONLY players whose names are in namesList
 
         if(entity.isPlayer()) {
             if(((PlayerEntity) entity).isCreative() || entity.isSpectator()) {
@@ -292,7 +315,7 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
             if(namesList.length == 0) {
                 return blacklist; // no players typed
             }
-            String playerName = entity.getName().toString().toLowerCase();
+            String playerName = entity.getDisplayName().getString().toLowerCase();
             if (blacklist) {
                 for(String name : namesList) {
                     if(name.equals(playerName)) return false;
@@ -310,11 +333,35 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
             }
 
         }
+        if(this.targetSelection.equals("onlyplayers")) return false;
+        // this is where the check for players ends, so no need to continue
 
-
-        if (entity.getGroup() == EntityGroup.UNDEAD || entity.getGroup() == EntityGroup.ILLAGER) {
+        if (entity instanceof HostileEntity && !(entity instanceof PiglinEntity && ((PiglinEntity) entity).getTarget() != null)) {
+            //attack hostile entities or charging piglins. but not passive piglins.
             return true;
         }
+
+        if(getOwner() != null && entity instanceof WolfEntity && ((WolfEntity) entity).getAngryAt().equals(getOwner().getUuid())) {
+            // closing a loophole
+            return true;
+        }
+        if(this.targetSelection.equals("hostiles")) return false;
+
+        // i dont think there is a way to check if a fox is "tamed" (has trusted Uuids) from outside the FoxEntity class without mixins (dont feel like doing that right now)
+        // so sorry tamed foxes are gonna be shot
+
+        if(entity instanceof TameableEntity pet && ((TameableEntity) entity).isTamed()) {
+            if(!this.blacklist && pet.getOwner() != null) {
+                String ownerName = pet.getOwner().getDisplayName().getString().toLowerCase();
+                for(String name : namesList) {
+                    if(name.equals(ownerName)) return true;
+                    // upon the first occurrence of the name, the
+                    // pet's owner is known to be on the whitelist ("enemy list")
+                }
+            }
+            return false;
+        }
+
 
         return false;
     }
