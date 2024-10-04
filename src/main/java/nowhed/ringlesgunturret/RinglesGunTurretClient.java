@@ -1,6 +1,7 @@
 package nowhed.ringlesgunturret;
 
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.minecraft.client.gui.screen.ingame.HandledScreens;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
@@ -10,6 +11,7 @@ import nowhed.ringlesgunturret.entity.ModEntities;
 import nowhed.ringlesgunturret.entity.client.BulletProjectileRenderer;
 import nowhed.ringlesgunturret.gui.GunTurretScreen;
 import nowhed.ringlesgunturret.gui.ModScreenHandlers;
+import nowhed.ringlesgunturret.networking.ModMessages;
 
 public class RinglesGunTurretClient implements ClientModInitializer {
     @Override
@@ -20,5 +22,6 @@ public class RinglesGunTurretClient implements ClientModInitializer {
 
         // THIS IS SO IMPORTANT v
         EntityRendererRegistry.register(ModEntities.BULLET_PROJECTILE, BulletProjectileRenderer::new);
+        ModMessages.registerS2CPackets();
     }
 }

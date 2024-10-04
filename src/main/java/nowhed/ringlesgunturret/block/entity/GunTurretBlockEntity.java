@@ -1,10 +1,12 @@
 package nowhed.ringlesgunturret.block.entity;
 
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerBlockEntityEvents;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
+import net.minecraft.entity.EntityGroup;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -14,9 +16,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.registry.tag.ItemTags;
-import net.minecraft.screen.Property;
 import net.minecraft.screen.ScreenHandler;
-import net.minecraft.screen.ScreenHandlerContext;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.text.Text;
@@ -29,10 +29,13 @@ import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
 import nowhed.ringlesgunturret.entity.custom.BulletProjectileEntity;
 import nowhed.ringlesgunturret.gui.GunTurretScreenHandler;
+import nowhed.ringlesgunturret.player.PlayerData;
+import nowhed.ringlesgunturret.player.StateSaver;
 import nowhed.ringlesgunturret.sound.ModSounds;
 import nowhed.ringlesgunturret.util.ModTags;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenHandlerFactory, ImplementedInventory, BlockEntityTicker {
@@ -42,6 +45,11 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
     private boolean canPlaySound = false;
     public Box rangeToSearch =  new Box(this.getPos().getX() - range, this.getPos().getY()-0.5,this.getPos().getZ() - range,
                                 this.getPos().getX() + range, this.getPos().getY()+1.5,this.getPos().getZ() + range);
+
+    private String targetSelection = "hostiles";
+    private String playerList = "";
+    private boolean blacklist = true;
+
     //public static float rotationTarget = 60;
     private DefaultedList<ItemStack> inventory = DefaultedList.ofSize(4,ItemStack.EMPTY);
 
@@ -76,6 +84,7 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
     public GunTurretBlockEntity(BlockPos pos, BlockState state, PlayerEntity playerEntity) {
         this(pos, state);
         this.owner = playerEntity;
+        this.requestTargetSettings(playerEntity);
     }
 
     @Override
@@ -108,7 +117,7 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
 
     @Override
     public @Nullable ScreenHandler createMenu(int syncId, PlayerInventory playerInventory, PlayerEntity player) {
-        return new GunTurretScreenHandler(syncId, playerInventory, this, ScreenHandlerContext.create(world, pos));
+        return new GunTurretScreenHandler(syncId, playerInventory, this);
     }
 
     @Override
@@ -128,20 +137,21 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
 
         List<LivingEntity> livingEntities = world.getEntitiesByClass(LivingEntity.class,rangeToSearch, e -> e.isAlive());
 
-        if (livingEntities.isEmpty()) {
+        if (livingEntities.isEmpty() || this.targetSelection.equals("disable")) {
             return;
         }
         double lowest = 999;
         LivingEntity chosen = null;
         for(LivingEntity entity : livingEntities) {
-
+            if (!isValidTarget(entity)) continue;
             double distance = Math.sqrt(
                     Math.pow((entity.getX() - pos.getX()),2) +
                     Math.pow((entity.getZ() - pos.getZ()),2)
             );
             if (distance < lowest) {
+                // now that we've selected a closest entity, fire a raycast to see if it is behind any blocks
                 BlockHitResult blockHitResult = this.getWorld().raycast(new RaycastContext(entity.getPos().add(0,1,0), this.getPos().toCenterPos(), RaycastContext.ShapeType.COLLIDER, RaycastContext.FluidHandling.NONE, entity));
-                if (blockHitResult.getType() != HitResult.Type.BLOCK && isValidTarget(entity)) {
+                if (blockHitResult.getType() != HitResult.Type.BLOCK) {
                     lowest = distance;
                     chosen = entity;
                 }
@@ -231,11 +241,12 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
                 this.getPos().getZ() + 0.5 + zR * 0.9
         );
 
-        projectileEntity.setOwner(null);
-
         projectileEntity.setYaw(-rotationR);
 
         projectileEntity.setVelocity(xR,0.0f,zR);
+
+
+        projectileEntity.setOwner(this.getOwner());
         return projectileEntity;
     }
 
@@ -246,38 +257,65 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
         return item.isIn(ItemTags.ARROWS);
     }
 
+    private void setTargetSettings(String targetSel, String players, Boolean blacklist) {
+        this.targetSelection = targetSel;
+        this.playerList = players;
+        this.blacklist = blacklist;
+    }
+
+    public void requestTargetSettings(PlayerEntity player) {
+        if(!(world == null) && !world.isClient() && player != null && this.getOwner() != null && player.equals(this.getOwner())) {
+            PlayerData playerData = StateSaver.getPlayerState(player, world);
+            if(playerData != null) setTargetSettings(playerData.targetSelection,
+                    playerData.playerList,
+                    playerData.blacklist);
+        }
+    }
+
     private boolean isValidTarget(LivingEntity entity) {
 
-        // okay SO MY IDEA FOR THIS WAS
-        // store a variable inside every player (probably with mixins?)
-        // that the server can access
-        // which stores settings for what the gun turret should do
-        // and target
-        // resources/assets/ringlesgunturret/textures/gui/GUI_MOCKUP.png
-        // but i couldnt figure out how 1. to store the variable
-        // and 2. to modify the variable with an item (nowhed/ringlesgunturret/item/TurretConfig.java)
-        // which would open a gui when right clicked (mockup file above)
-        // and when i couldnt figure THAT out either i got discouraged so whatever
-        // it will only target hostile mobs, never players. i wanted to let players set a list of "enemies" or a list of "friendlies"
-        // where the turret will target and will not target respectively
-        // but maybe someone can help me or take over the project. i dunno. im better at modeling than programming
+        String[] namesList = playerList.split(",");
 
-        if(entity.isInvulnerable() || entity.isInvisible() || entity.getType().getSpawnGroup().isPeaceful()) {
+        System.out.println(entity.getName() + ":" + entity.getHeight());
+
+        if(entity.isInvulnerable() || entity.getHeight() < 0.6f || (entity.isInvisible())) {
             return false;
         }
 
-        /*if(entity.isPlayer()) {
-            if(entity.getName()) {
+        // blacklist TRUE = attack ALL players whose names are not in namesList
+        // blacklist FALSe = attack ONLY players whose names are in namesList
+
+        if(entity.isPlayer()) {
+            if(((PlayerEntity) entity).isCreative() || entity.isSpectator()) {
                 return false;
             }
-        }*/
+            if(namesList.length == 0) {
+                return blacklist; // no players typed
+            }
+            String playerName = entity.getName().toString().toLowerCase();
+            if (blacklist) {
+                for(String name : namesList) {
+                    if(name.equals(playerName)) return false;
+                    //upon the first occurrence of the name, the
+                    //player is known to be on the blacklist
+                }
+                return true;
+            } else {
+                for(String name : namesList) {
+                    if(name.equals(playerName)) return true;
+                    //upon the first occurrence of the name,
+                    //the player is known to be a target
+                }
+                return false;
+            }
 
-        return true;
+        }
 
-        /*if (entity.getGroup() == EntityGroup.UNDEAD || entity.getGroup() == EntityGroup.ILLAGER) {
+
+        if (entity.getGroup() == EntityGroup.UNDEAD || entity.getGroup() == EntityGroup.ILLAGER) {
             return true;
         }
 
-        return false;*/
+        return false;
     }
 }

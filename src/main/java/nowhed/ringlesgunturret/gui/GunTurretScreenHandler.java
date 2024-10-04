@@ -7,18 +7,10 @@ import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.ScreenHandler;
-import net.minecraft.screen.ScreenHandlerContext;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.sound.SoundCategory;
-import net.minecraft.text.Text;
-import net.minecraft.world.World;
 import nowhed.ringlesgunturret.block.entity.GunTurretBlockEntity;
-import nowhed.ringlesgunturret.player.PlayerData;
-import nowhed.ringlesgunturret.player.StateSaver;
 import nowhed.ringlesgunturret.sound.ModSounds;
-
-import javax.swing.plaf.nimbus.State;
-import java.util.Optional;
 
 public class GunTurretScreenHandler extends ScreenHandler {
 
@@ -26,21 +18,17 @@ public class GunTurretScreenHandler extends ScreenHandler {
     public final GunTurretBlockEntity blockEntity;
     private final int rows;
     private PlayerEntity playerEntity;
-    private final ScreenHandlerContext context;
-
 
     public GunTurretScreenHandler(int syncId, PlayerInventory inventory, PacketByteBuf buf) {
-        this(syncId,inventory, inventory.player.getWorld().getBlockEntity(buf.readBlockPos()), ScreenHandlerContext.EMPTY);
+        this(syncId,inventory, inventory.player.getWorld().getBlockEntity(buf.readBlockPos()));
     }
 
-
-    public GunTurretScreenHandler(int syncId, PlayerInventory playerInventory, BlockEntity blockEntity, ScreenHandlerContext context) {
+    public GunTurretScreenHandler(int syncId, PlayerInventory playerInventory, BlockEntity blockEntity) {
         super(ModScreenHandlers.GUN_TURRET_SCREEN_HANDLER, syncId);
         checkSize((Inventory) blockEntity, 4);
         this.inventory = ((Inventory) blockEntity);
         this.rows = 2;
         this.playerEntity = playerInventory.player;
-        this.context = context;
         inventory.onOpen(playerEntity);
         this.blockEntity = ((GunTurretBlockEntity) blockEntity);
 
@@ -91,6 +79,7 @@ public class GunTurretScreenHandler extends ScreenHandler {
     public void onClosed(PlayerEntity player) {
         super.onClosed(player);
         this.inventory.onClose(player);
+        this.blockEntity.requestTargetSettings(player);
         player.getWorld().playSound(null, player.getBlockPos(), ModSounds.CLOSE, SoundCategory.BLOCKS, 0.5f, 1f);
     }
 
@@ -115,47 +104,5 @@ public class GunTurretScreenHandler extends ScreenHandler {
     public int getRows() {
         return this.rows;
     }
-
-    public PlayerData getPlayerData() {
-        Optional<PlayerData> result = this.context.get((world, pos) -> {
-            return StateSaver.getPlayerState(playerEntity, world);
-        });
-        return result.orElse(null);
-    }
-
-    public void contextTest() {
-        this.context.run((world,pos) -> {
-           System.out.println("success! " + world + "|" + pos);
-        });
-    }
-
-    @Override
-    public boolean onButtonClick(PlayerEntity player, int id) {
-        this.context.run((world, pos) -> {
-            PlayerData playerState = StateSaver.getPlayerState(player,world);
-            switch(id) {
-                case 0: // "all" button
-                    playerState.targetSelection = "all";
-                    break;
-                case 1: // "hostiles" button
-                    playerState.targetSelection = "hostiles";
-                    break;
-                case 2: // "onlyplayers" button
-                    playerState.targetSelection = "onlyplayers";
-                    break;
-                case 3: // "disable" button
-                    playerState.targetSelection = "disable";
-                    break;
-                case 4: // blacklist button
-                    playerState.blacklist = true;
-                    break;
-                case 5: // whitelist button
-                    playerState.blacklist = false;
-                    break;
-            }
-        });
-        return true;
-    }
-
 
 }

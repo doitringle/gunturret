@@ -4,6 +4,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.MovementType;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.entity.projectile.ProjectileUtil;
 import net.minecraft.network.listener.ClientPlayPacketListener;
@@ -121,7 +122,15 @@ public class BulletProjectileEntity extends ProjectileEntity {
 
         DamageSource damageSource = ModDamageTypes.createDamageSource(world, ModDamageTypes.SHOT_BY_TURRET);
         entity.damage(damageSource,BULLETDAMAGE);
+
+
         entity.addVelocity(this.getVelocity().multiply(0.1,0.1,0.1));
+
+        if(!entity.isAlive() && super.getOwner() != null && super.getOwner().getType().equals(EntityType.PLAYER)) {
+            entity.getServer().getPlayerManager().getPlayer(super.getOwner().getUuid())
+                    .incrementStat(RinglesGunTurret.KILLS_WITH_GUN_TURRET);
+            // got kill = increment stat
+        }
 
         this.discard();
     }

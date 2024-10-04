@@ -25,7 +25,7 @@ public class ModItemGroups {
                     }).build());
 
     public static void registerItemGroups() {
-        RinglesGunTurret.LOGGER.info("Registering item groups for " + RinglesGunTurret.MOD_ID);
+        //RinglesGunTurret.LOGGER.info("Registering item groups for " + RinglesGunTurret.MOD_ID);
     }
 
 }

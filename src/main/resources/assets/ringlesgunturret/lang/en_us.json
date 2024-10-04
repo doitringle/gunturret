@@ -10,10 +10,10 @@
   "gui.button.settings": "Targeting Settings",
   "gui.text.main_label": "Settings affect all turrets you own",
 
-  "gui.button.target_hostiles": "Attack all hostile entities",
+  "gui.button.target_hostiles": "Attack all hostile mobs",
   "gui.button.target_hostiles.tooltip": "This includes players set",
-  "gui.button.target_all": "Attack all entities",
-  "gui.button.target_all.tooltip":"Will not attack pets",
+  "gui.button.target_all": "Attack all mobs",
+  "gui.button.target_all.tooltip":"Will not attack pets, respects player settings",
   "gui.button.target_disable": "Attack nothing",
   "gui.button.target_disable.tooltip":"This disables all turrets",
   "gui.button.target_onlyplayers":"Attack only players",
@@ -22,5 +22,7 @@
   "gui.textfield.player_names.tooltip":"Separate names by comma",
   "gui.ringlesgunturret.button.confirm": "Confirm",
   "gui.button.whitelist":"Attack ONLY these players",
-  "gui.button.blacklist":"Attack all BUT these players"
+  "gui.button.blacklist":"Attack all BUT these players",
+
+  "stat.ringlesgunturret.kills_with_gun_turret": "Kills with gun turret"
 }

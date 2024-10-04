@@ -5,6 +5,7 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.api.ModInitializer;
 
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerBlockEntityEvents;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
@@ -14,8 +15,12 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.stat.StatFormatter;
+import net.minecraft.stat.Stats;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Identifier;
@@ -23,6 +28,7 @@ import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import nowhed.ringlesgunturret.block.ModBlocks;
+import nowhed.ringlesgunturret.block.entity.GunTurretBlockEntity;
 import nowhed.ringlesgunturret.block.entity.ModBlockEntities;
 import nowhed.ringlesgunturret.damage_type.ModDamageTypes;
 import nowhed.ringlesgunturret.entity.ModEntities;
@@ -43,6 +49,7 @@ public class RinglesGunTurret implements ModInitializer {
 
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
+	public static final Identifier KILLS_WITH_GUN_TURRET = new Identifier(MOD_ID,"kills_with_gun_turret");
 
 	@Override
 	public void onInitialize() {
@@ -61,12 +68,15 @@ public class RinglesGunTurret implements ModInitializer {
 		ModMessages.registerS2CPackets();
 		registerEvents();
 
+		Registry.register(Registries.CUSTOM_STAT, "kills_with_gun_turret", KILLS_WITH_GUN_TURRET);
+		Stats.CUSTOM.getOrCreateStat(KILLS_WITH_GUN_TURRET, StatFormatter.DEFAULT);
+
+
 
 		LOGGER.info("oeugh...");
 	}
 
 
-	public static final Identifier TARGET_SELECTION = new Identifier(MOD_ID, "target_selection");
 
 
 	public static void registerEvents() {
@@ -97,6 +107,13 @@ public class RinglesGunTurret implements ModInitializer {
 			}
 			return new TypedActionResult<>(ActionResult.PASS, player.getStackInHand(hand));
 		}));*/
+
+		ServerBlockEntityEvents.BLOCK_ENTITY_LOAD.register(((blockEntity, world) -> {
+			if(blockEntity instanceof GunTurretBlockEntity) {
+				GunTurretBlockEntity gunTurretBlockEntity = (GunTurretBlockEntity) blockEntity;
+                (gunTurretBlockEntity).requestTargetSettings((gunTurretBlockEntity.getOwner()));
+			}
+		}));
 
 		UseBlockCallback.EVENT.register((player, world, hand, hitResult) -> {
 			if (hitResult.getType() != BlockHitResult.Type.BLOCK) {

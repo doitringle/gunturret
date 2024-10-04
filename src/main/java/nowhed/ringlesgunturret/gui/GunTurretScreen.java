@@ -18,6 +18,7 @@ import net.minecraft.screen.ScreenHandler;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import nowhed.ringlesgunturret.RinglesGunTurret;
+import nowhed.ringlesgunturret.block.entity.GunTurretBlockEntity;
 import nowhed.ringlesgunturret.networking.ModMessages;
 import nowhed.ringlesgunturret.player.PlayerData;
 
@@ -85,11 +86,11 @@ public class GunTurretScreen extends HandledScreen<GunTurretScreenHandler> {
 
 
         player_name_confirm = ButtonWidget.builder(Text.literal("✓"), button -> {
-                    //this.handler.onButtonClick(this.client.player, 6);
+                    // make all lowercase and also remove whitespace
+                    String namelist = player_name_field.getText().toLowerCase().replaceAll("\\s","");
                     PacketByteBuf packet = PacketByteBufs.create();
-                    packet.writeString(player_name_field.getText());
-                    ClientPlayNetworking.send(ModMessages.TARGET_SELECTION_ID, packet);
-
+                    packet.writeString(namelist);
+                    ClientPlayNetworking.send(ModMessages.PLAYER_LIST_ID, packet);
                 })
                 .dimensions(player_name_field.getWidth()+player_name_field.getX()+5,player_name_field.getY()-2,gh(23),gh(23))
                 .build();
@@ -122,7 +123,7 @@ public class GunTurretScreen extends HandledScreen<GunTurretScreenHandler> {
                 .tooltip(Tooltip.of(Text.translatable("gui.button.target_disable.tooltip")))
                 .build();
 
-        initialPlayerData();
+        requestPlayerData();
 
         // add left side buttons
         addDrawableChild(target_all);
@@ -134,18 +135,14 @@ public class GunTurretScreen extends HandledScreen<GunTurretScreenHandler> {
 
     }
 
-    private void initialPlayerData() {
-        PlayerData playerData = this.handler.getPlayerData();
-        if (playerData == null) {
-            System.out.println("Player data not found.");
-            updateButton("hostiles");
-            updateButtonPlayers(false);
-        } else {
-            System.out.println("Player data found! Loading...");
-            updateButton(playerData.targetSelection,false);
-            updateButtonPlayers(playerData.blacklist,false);
-            player_name_field.setText(playerData.playerList);
-        }
+    private void requestPlayerData() {
+        ClientPlayNetworking.send(ModMessages.REQUEST_PLAYER_DATA_ID,PacketByteBufs.create());
+    }
+
+    public void setPlayerData(String targetSel, String playerLst, Boolean blklst) {
+        updateButton(targetSel,false);
+        updateButtonPlayers(blklst,false);
+        player_name_field.setText(playerLst);
     }
 
     public void updateButton(String sel){
@@ -158,30 +155,26 @@ public class GunTurretScreen extends HandledScreen<GunTurretScreenHandler> {
         target_hostiles.active = true;
         target_onlyplayers.active = true;
         target_disable.active = true;
-        int id = 0;
         switch(sel) {
             case "all":
-                id=0;
                 target_all.active = false;
                 break;
             case "hostiles":
-                id=1;
                 target_hostiles.active = false;
                 break;
             case "onlyplayers":
-                id=2;
                 target_onlyplayers.active = false;
                 break;
             default: // "disable"
-                id=3;
+                sel = "disable";
                 target_disable.active = false;
                 break;
         }
 
         if(press) {
-            this.handler.onButtonClick(this.client.player, id);
-            this.client.interactionManager.clickButton(this.handler.syncId, id);
-
+            PacketByteBuf packet = PacketByteBufs.create();
+            packet.writeString(sel);
+            ClientPlayNetworking.send(ModMessages.TARGET_SELECTION_ID, packet);
         }
 
 
@@ -191,20 +184,18 @@ public class GunTurretScreen extends HandledScreen<GunTurretScreenHandler> {
     }
     public void updateButtonPlayers(Boolean isBlacklist,Boolean press) {
         // true = blacklist false = whitelist
-        int id;
         if(isBlacklist) {
             blacklist.active = false;
             whitelist.active = true;
-            id=4;
         } else {
             blacklist.active = true;
             whitelist.active = false;
-            id=5;
         }
 
         if(press) {
-            this.handler.onButtonClick(this.client.player, id);
-            this.client.interactionManager.clickButton(this.handler.syncId, id);
+            PacketByteBuf packet = PacketByteBufs.create();
+            packet.writeBoolean(isBlacklist);
+            ClientPlayNetworking.send(ModMessages.BLACKLIST_ID, packet);
         }
 
     }
@@ -255,6 +246,7 @@ public class GunTurretScreen extends HandledScreen<GunTurretScreenHandler> {
     public void close() {
         if(player_name_field.isFocused())
             return;
+
 
         super.close();
     }

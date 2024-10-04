@@ -25,7 +25,7 @@ public class ModItems {
 
 
     public static void registerModItems() {
-        RinglesGunTurret.LOGGER.info("Registering items for " + RinglesGunTurret.MOD_ID);
+        //RinglesGunTurret.LOGGER.info("Registering items for " + RinglesGunTurret.MOD_ID);
 
         ItemGroupEvents.modifyEntriesEvent(ItemGroups.INGREDIENTS).register(ModItems::addItemsToIngredientItemGroup);
     }
