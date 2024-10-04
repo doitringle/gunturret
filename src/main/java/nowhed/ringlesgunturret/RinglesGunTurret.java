@@ -29,6 +29,7 @@ import nowhed.ringlesgunturret.entity.ModEntities;
 import nowhed.ringlesgunturret.gui.ModScreenHandlers;
 import nowhed.ringlesgunturret.item.ModItemGroups;
 import nowhed.ringlesgunturret.item.ModItems;
+import nowhed.ringlesgunturret.networking.ModMessages;
 import nowhed.ringlesgunturret.player.PlayerData;
 import nowhed.ringlesgunturret.player.StateSaver;
 import nowhed.ringlesgunturret.sound.ModSounds;
@@ -56,6 +57,8 @@ public class RinglesGunTurret implements ModInitializer {
 		ModScreenHandlers.registerScreenHandlers();
 		ModDamageTypes.registerModDamageTypes();
 		ModEntities.registerModEntities();
+		ModMessages.registerC2SPackets();
+		ModMessages.registerS2CPackets();
 		registerEvents();
 
 

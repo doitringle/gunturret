@@ -1,6 +1,8 @@
 package nowhed.ringlesgunturret.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.gui.tooltip.Tooltip;
@@ -11,10 +13,13 @@ import net.minecraft.client.gui.widget.TexturedButtonWidget;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import nowhed.ringlesgunturret.RinglesGunTurret;
+import nowhed.ringlesgunturret.networking.ModMessages;
+import nowhed.ringlesgunturret.player.PlayerData;
 
 import java.util.Optional;
 
@@ -52,6 +57,8 @@ public class GunTurretScreen extends HandledScreen<GunTurretScreenHandler> {
 
         //this goes x,y,w,h
 
+        // insane gui code, ringle!
+
         name_field_label = new TextWidget(gw(410),gh(50),gw(125),gh(25),Text.translatable("gui.text.players_settings"),textRenderer);
         addDrawableChild(name_field_label);
 
@@ -78,7 +85,11 @@ public class GunTurretScreen extends HandledScreen<GunTurretScreenHandler> {
 
 
         player_name_confirm = ButtonWidget.builder(Text.literal("✓"), button -> {
-                    System.out.println(player_name_field.getText());
+                    //this.handler.onButtonClick(this.client.player, 6);
+                    PacketByteBuf packet = PacketByteBufs.create();
+                    packet.writeString(player_name_field.getText());
+                    ClientPlayNetworking.send(ModMessages.TARGET_SELECTION_ID, packet);
+
                 })
                 .dimensions(player_name_field.getWidth()+player_name_field.getX()+5,player_name_field.getY()-2,gh(23),gh(23))
                 .build();
@@ -111,8 +122,7 @@ public class GunTurretScreen extends HandledScreen<GunTurretScreenHandler> {
                 .tooltip(Tooltip.of(Text.translatable("gui.button.target_disable.tooltip")))
                 .build();
 
-        updateButton(this.handler.getPlayerData().targetSelection, false);
-        update
+        initialPlayerData();
 
         // add left side buttons
         addDrawableChild(target_all);
@@ -122,6 +132,87 @@ public class GunTurretScreen extends HandledScreen<GunTurretScreenHandler> {
 
 
 
+    }
+
+    private void initialPlayerData() {
+        PlayerData playerData = this.handler.getPlayerData();
+        if (playerData == null) {
+            System.out.println("Player data not found.");
+            updateButton("hostiles");
+            updateButtonPlayers(false);
+        } else {
+            System.out.println("Player data found! Loading...");
+            updateButton(playerData.targetSelection,false);
+            updateButtonPlayers(playerData.blacklist,false);
+            player_name_field.setText(playerData.playerList);
+        }
+    }
+
+    public void updateButton(String sel){
+        updateButton(sel, true);
+    }
+    public void updateButton(String sel,Boolean press) {
+
+        //this is really quite terrible, but I didn't feel like doing it good
+        target_all.active = true;
+        target_hostiles.active = true;
+        target_onlyplayers.active = true;
+        target_disable.active = true;
+        int id = 0;
+        switch(sel) {
+            case "all":
+                id=0;
+                target_all.active = false;
+                break;
+            case "hostiles":
+                id=1;
+                target_hostiles.active = false;
+                break;
+            case "onlyplayers":
+                id=2;
+                target_onlyplayers.active = false;
+                break;
+            default: // "disable"
+                id=3;
+                target_disable.active = false;
+                break;
+        }
+
+        if(press) {
+            this.handler.onButtonClick(this.client.player, id);
+            this.client.interactionManager.clickButton(this.handler.syncId, id);
+
+        }
+
+
+    }
+    public void updateButtonPlayers(Boolean isBlacklist){
+        updateButtonPlayers(isBlacklist, true);
+    }
+    public void updateButtonPlayers(Boolean isBlacklist,Boolean press) {
+        // true = blacklist false = whitelist
+        int id;
+        if(isBlacklist) {
+            blacklist.active = false;
+            whitelist.active = true;
+            id=4;
+        } else {
+            blacklist.active = true;
+            whitelist.active = false;
+            id=5;
+        }
+
+        if(press) {
+            this.handler.onButtonClick(this.client.player, id);
+            this.client.interactionManager.clickButton(this.handler.syncId, id);
+        }
+
+    }
+    public int gh(int heightVal) {
+        return (int) (height * (heightVal / 345.0));
+    }
+    public int gw(int widthVal) {
+        return (int) (width * (widthVal / 640.0));
     }
 
     @Override
@@ -168,69 +259,5 @@ public class GunTurretScreen extends HandledScreen<GunTurretScreenHandler> {
         super.close();
     }
 
-    public void updateButton(String sel){
-        updateButton(sel, true);
-    }
-    public void updateButton(String sel,Boolean press) {
 
-        //this is really quite terrible, but I didn't feel like doing it good
-        target_all.active = true;
-        target_hostiles.active = true;
-        target_onlyplayers.active = true;
-        target_disable.active = true;
-        int id = 0;
-        switch(sel) {
-            case "all":
-                id=0;
-                target_all.active = false;
-                break;
-            case "hostiles":
-                id=1;
-                target_hostiles.active = false;
-                break;
-            case "onlyplayers":
-                id=2;
-                target_onlyplayers.active = false;
-                break;
-            default: // "disable"
-                id=3;
-                target_disable.active = false;
-                break;
-        }
-
-        if(press) {
-            this.handler.onButtonClick(this.client.player, id);
-            this.client.interactionManager.clickButton(this.handler.syncId, id);
-        }
-
-
-    }
-    public void updateButtonPlayers(Boolean isBlacklist){
-        updateButtonPlayers(isBlacklist, true);
-    }
-    public void updateButtonPlayers(Boolean isBlacklist,Boolean press) {
-        // true = blacklist false = whitelist
-        int id;
-        if(isBlacklist) {
-            blacklist.active = false;
-            whitelist.active = true;
-            id=4;
-        } else {
-            blacklist.active = true;
-            whitelist.active = false;
-            id=5;
-        }
-
-        if(press) {
-            this.handler.onButtonClick(this.client.player, id);
-            this.client.interactionManager.clickButton(this.handler.syncId, id);
-        }
-
-    }
-    public int gh(int heightVal) {
-        return (int) (height * (heightVal / 345.0));
-    }
-    public int gw(int widthVal) {
-        return (int) (width * (widthVal / 640.0));
-    }
 }

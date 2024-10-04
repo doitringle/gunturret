@@ -25,6 +25,7 @@ public class StateSaver extends PersistentState {
 
         return playerState;
     }
+
     public static PlayerData getPlayerState(LivingEntity player, World world) {
         StateSaver serverState = getServerState(world.getServer());
         PlayerData playerState = serverState.players.computeIfAbsent(player.getUuid(), uuid -> new PlayerData());

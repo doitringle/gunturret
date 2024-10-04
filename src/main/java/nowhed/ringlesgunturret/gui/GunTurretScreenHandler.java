@@ -17,6 +17,7 @@ import nowhed.ringlesgunturret.player.PlayerData;
 import nowhed.ringlesgunturret.player.StateSaver;
 import nowhed.ringlesgunturret.sound.ModSounds;
 
+import javax.swing.plaf.nimbus.State;
 import java.util.Optional;
 
 public class GunTurretScreenHandler extends ScreenHandler {
@@ -117,17 +118,41 @@ public class GunTurretScreenHandler extends ScreenHandler {
 
     public PlayerData getPlayerData() {
         Optional<PlayerData> result = this.context.get((world, pos) -> {
-            PlayerData playerState = StateSaver.getPlayerState(playerEntity, world);
-            return playerState;
+            return StateSaver.getPlayerState(playerEntity, world);
         });
         return result.orElse(null);
     }
 
+    public void contextTest() {
+        this.context.run((world,pos) -> {
+           System.out.println("success! " + world + "|" + pos);
+        });
+    }
+
     @Override
     public boolean onButtonClick(PlayerEntity player, int id) {
-        System.out.println(id);
         this.context.run((world, pos) -> {
-            // nothing right now!
+            PlayerData playerState = StateSaver.getPlayerState(player,world);
+            switch(id) {
+                case 0: // "all" button
+                    playerState.targetSelection = "all";
+                    break;
+                case 1: // "hostiles" button
+                    playerState.targetSelection = "hostiles";
+                    break;
+                case 2: // "onlyplayers" button
+                    playerState.targetSelection = "onlyplayers";
+                    break;
+                case 3: // "disable" button
+                    playerState.targetSelection = "disable";
+                    break;
+                case 4: // blacklist button
+                    playerState.blacklist = true;
+                    break;
+                case 5: // whitelist button
+                    playerState.blacklist = false;
+                    break;
+            }
         });
         return true;
     }
