@@ -11,13 +11,13 @@ import net.minecraft.item.Item;
 import net.minecraft.util.Identifier;
 
 public class ModItems {
-    public static final Item GUNBARREL = registerItem("gunbarrel",new Item(new FabricItemSettings()));
+/*    public static final Item GUNBARREL = registerItem("gunbarrel",new Item(new FabricItemSettings()));
     public static final Item TURRETSETTINGS = registerItem("turretsettings",
             new TurretConfig(new FabricItemSettings()));
     private static void addItemsToIngredientItemGroup(FabricItemGroupEntries entries) {
         entries.add(GUNBARREL);
         entries.add(TURRETSETTINGS);
-    }
+    }*/
 
     private static Item registerItem(String name, Item item) {
         return Registry.register(Registries.ITEM, new Identifier(RinglesGunTurret.MOD_ID, name), item);
@@ -27,7 +27,7 @@ public class ModItems {
     public static void registerModItems() {
         //RinglesGunTurret.LOGGER.info("Registering items for " + RinglesGunTurret.MOD_ID);
 
-        ItemGroupEvents.modifyEntriesEvent(ItemGroups.INGREDIENTS).register(ModItems::addItemsToIngredientItemGroup);
+        //ItemGroupEvents.modifyEntriesEvent(ItemGroups.INGREDIENTS).register(ModItems::addItemsToIngredientItemGroup);
     }
 
 }

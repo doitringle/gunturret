@@ -16,8 +16,6 @@ public class ModTags {
         }
     }
     public static class Items {
-        public static final TagKey<Item> VALID_TURRET_PROJECTILE =
-                createTag("valid_turret_projectile");
 
         private static TagKey<Item> createTag(String name) {
             return TagKey.of(RegistryKeys.ITEM, Identifier.of(RinglesGunTurret.MOD_ID, name));

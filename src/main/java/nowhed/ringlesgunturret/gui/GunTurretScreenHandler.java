@@ -80,6 +80,7 @@ public class GunTurretScreenHandler extends ScreenHandler {
         super.onClosed(player);
         this.inventory.onClose(player);
         this.blockEntity.requestTargetSettings(player);
+
         player.getWorld().playSound(null, player.getBlockPos(), ModSounds.CLOSE, SoundCategory.BLOCKS, 0.5f, 1f);
     }
 

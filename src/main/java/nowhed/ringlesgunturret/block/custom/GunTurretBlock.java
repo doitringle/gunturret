@@ -34,15 +34,24 @@ public class GunTurretBlock extends BlockWithEntity {
 
     private PlayerEntity owner;
 
-    @Override
-    public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
-        if (placer != null && placer.getType() == EntityType.PLAYER) {
-            owner = (PlayerEntity) placer;
-        }
-    }
+
 
     public GunTurretBlock(Settings settings) {
         super(settings);
+    }
+
+    @Override
+    public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
+        super.onPlaced(world,pos,state,placer,itemStack);
+
+        if (placer != null && placer.getType() == EntityType.PLAYER) {
+                BlockEntity blockEntity = world.getBlockEntity(pos);
+                if(blockEntity instanceof GunTurretBlockEntity) {
+                    ((GunTurretBlockEntity) blockEntity).setOwner((PlayerEntity) placer);
+                    ((GunTurretBlockEntity) blockEntity).requestTargetSettings((PlayerEntity) placer);
+                }
+            this.owner = (PlayerEntity) placer;
+        }
     }
 
     @Override
@@ -60,8 +69,8 @@ public class GunTurretBlock extends BlockWithEntity {
 
         if (!world.isClient) {
 
-            if(owner != null && !player.getUuid().equals(owner.getUuid())){
-                player.sendMessage(Text.translatable("block.ringlesgunturret.no_access_message"));
+            if(!player.isCreative() && this.owner != null && !player.getUuid().equals(this.owner.getUuid())){
+                player.sendMessage(Text.translatable("block.ringlesgunturret.no_access_message"), true);
                 return ActionResult.FAIL;
                 // anyone can access a null-owner gun turret.
                 // not sure how that would be created but whatever
@@ -98,7 +107,7 @@ public class GunTurretBlock extends BlockWithEntity {
     @Nullable
     @Override
     public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
-        return new GunTurretBlockEntity(pos, state, owner);
+        return new GunTurretBlockEntity(pos, state);
     }
 
     @Override

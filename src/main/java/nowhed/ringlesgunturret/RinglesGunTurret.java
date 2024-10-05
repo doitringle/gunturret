@@ -51,6 +51,8 @@ public class RinglesGunTurret implements ModInitializer {
 
 	public static final Identifier KILLS_WITH_GUN_TURRET = new Identifier(MOD_ID,"kills_with_gun_turret");
 
+	public static boolean HWG_INSTALLED;
+
 	@Override
 	public void onInitialize() {
 		if (FabricLoader.getInstance().isModLoaded("holy-reminder")) {
@@ -71,7 +73,7 @@ public class RinglesGunTurret implements ModInitializer {
 		Registry.register(Registries.CUSTOM_STAT, "kills_with_gun_turret", KILLS_WITH_GUN_TURRET);
 		Stats.CUSTOM.getOrCreateStat(KILLS_WITH_GUN_TURRET, StatFormatter.DEFAULT);
 
-
+		HWG_INSTALLED = FabricLoader.getInstance().isModLoaded("hwg");
 
 		LOGGER.info("oeugh...");
 	}

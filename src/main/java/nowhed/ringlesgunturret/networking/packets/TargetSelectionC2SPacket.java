@@ -21,7 +21,7 @@ public class TargetSelectionC2SPacket {
         String selection = buf.readString();
         PlayerData playerState = StateSaver.getPlayerState(player,server.getWorld(World.OVERWORLD));
         playerState.targetSelection = selection;
-        player.sendMessage(Text.literal("Set turret aim selection to: " + selection));
+        //player.sendMessage(Text.literal("Set turret aim selection to: " + selection));
 
         if(selection.equals("all")) {
             player.sendMessage(Text.translatable("message.warning.targetall"));

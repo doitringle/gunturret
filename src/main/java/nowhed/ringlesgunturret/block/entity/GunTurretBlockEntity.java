@@ -74,6 +74,12 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
         return this.owner;
     }
 
+
+
+    public void setOwner(PlayerEntity playerEntity) {
+        this.owner = playerEntity;
+    }
+
     public void addRotation(float value) {
         this.rotation += value;
 
@@ -143,12 +149,15 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
     public void tick(World world, BlockPos pos, BlockState state, BlockEntity blockEntity) {
 
         if (world.isClient()) {return;}
-       // this one line of code destroyed my entire afternoon
 
+        if(world.getServer().getTicks() % 30 == 0) {
+            this.requestTargetSettings(this.getOwner());
+            //probably a bad idea
+        }
 
         GunTurretBlockEntity thisEntity = (GunTurretBlockEntity) blockEntity;
 
-        List<LivingEntity> livingEntities = world.getEntitiesByClass(LivingEntity.class,rangeToSearch, e -> e.isAlive());
+        List<LivingEntity> livingEntities = world.getEntitiesByClass(LivingEntity.class,rangeToSearch, LivingEntity::isAlive);
 
         if (livingEntities.isEmpty() || this.targetSelection.equals("disable")) {
             return;
@@ -170,7 +179,7 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
             );
             if (distance < lowest) {
                 // now that we've selected a closest entity, fire a raycast to see if it is behind any blocks
-                BlockHitResult blockHitResult = this.getWorld().raycast(new RaycastContext(entity.getPos().add(0,1,0), this.getPos().toCenterPos(), RaycastContext.ShapeType.COLLIDER, RaycastContext.FluidHandling.NONE, entity));
+                BlockHitResult blockHitResult = this.getWorld().raycast(new RaycastContext(entity.getPos().add(0,1.25,0), this.getPos().toCenterPos(), RaycastContext.ShapeType.COLLIDER, RaycastContext.FluidHandling.NONE, entity));
                 if (blockHitResult.getType() != HitResult.Type.BLOCK) {
                     lowest = distance;
                     chosen = entity;
@@ -211,8 +220,6 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
         thisEntity.addRotation(lerp);
         //run rotation calculation on both server & client so that the client can render the top
         //and the server can detect when its time to shoot
-
-        if (world.isClient()) {return;}
 
 
         boolean hasArrows = false;
@@ -255,9 +262,9 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
         float zR = (float) (BULLET_SPEED * Math.sin(rotationR));
 
         projectileEntity.setPos(
-                this.getPos().getX() + 0.5 + xR * 0.9,
+                this.getPos().getX() + 0.5 - xR*0.5,
                 this.getPos().getY() + 1.2,
-                this.getPos().getZ() + 0.5 + zR * 0.9
+                this.getPos().getZ() + 0.5 - zR*0.5
         );
 
         projectileEntity.setYaw(-rotationR);
@@ -270,9 +277,9 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
     }
 
     private boolean isValidProjectile(ItemStack item) {
-        if (FabricLoader.getInstance().isModLoaded("hwg")) {
-            return item.isIn(ModTags.Items.VALID_TURRET_PROJECTILE);
-        }
+        //if (FabricLoader.getInstance().isModLoaded("hwg")) {
+        //    return item.isIn(ModTags.Items.VALID_TURRET_PROJECTILE);
+        //}
         return item.isIn(ItemTags.ARROWS);
     }
 
@@ -301,7 +308,11 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
         //System.out.println("EYE_Y : " + entity.getName() + ":" + (entity.getEyeY() - this.getPos().getY()));
 
 
-        if(entity.isInvulnerable() || entity.getEyeY() - this.getPos().getY() < 0.6f || entity.isInvisible()) {
+
+        if(entity.isInvulnerable() || entity.isInvisible() ||
+                (entity.getHeight() < 0.6 && entity.getEyeY() - this.getPos().getY() < 0.6f)) {
+            //if invulnerable, or invisible
+            // if entity is too small to be hit and also low to the ground
             return false;
         }
 
@@ -322,6 +333,7 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
                     //upon the first occurrence of the name, the
                     //player is known to be on the blacklist
                 }
+                if(playerName.equals(getOwner().getDisplayName().getString().toLowerCase())) return false;
                 return true;
             } else {
                 for(String name : namesList) {
@@ -361,8 +373,9 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
             }
             return false;
         }
+        if(entity instanceof AnimalEntity && entity.isBaby()) return false;
 
 
-        return false;
+        return true;
     }
 }

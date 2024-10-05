@@ -43,26 +43,25 @@ public class BulletProjectileEntity extends ProjectileEntity {
 
     @Override
     public void tick() {
-        this.age++;
         super.tick();
+        this.age++;
+
 
         if (this.age >= removeTime) {
             this.remove(RemovalReason.DISCARDED);
             return;
         }
 
-
-        this.getWorld().addParticle(ParticleTypes.CLOUD,getX(),getY(),getZ(), getVelocity().x*0.1, 0.0, getVelocity().z * 0.1);
+        if(age > 1) {
+            this.getWorld().addParticle(ParticleTypes.CLOUD, getX(), getY(), getZ(), getVelocity().x * 0.1, 0.0, getVelocity().z * 0.1);
+        }
         //setPos(getX() + getVelocity().x, getY(), getZ() + getVelocity().z);
 
         Vec3d currentPosition = this.getPos();
 
         Vec3d nextPosition = currentPosition.add(this.getVelocity());
 
-        BlockHitResult blockHitResult = this.getWorld().raycast(new RaycastContext(currentPosition, nextPosition, RaycastContext.ShapeType.OUTLINE, RaycastContext.FluidHandling.NONE, this));
-        if (blockHitResult.getType() != HitResult.Type.MISS) {
-            this.onBlockHit(blockHitResult);
-        }
+        this.noClip = true;
 
         EntityHitResult entityHitResult = this.getEntityCollision(currentPosition, nextPosition);
 
@@ -70,7 +69,12 @@ public class BulletProjectileEntity extends ProjectileEntity {
             this.onEntityHit(entityHitResult);
         }
 
-        this.noClip = true;
+        BlockHitResult blockHitResult = this.getWorld().raycast(new RaycastContext(currentPosition, nextPosition, RaycastContext.ShapeType.OUTLINE, RaycastContext.FluidHandling.NONE, this));
+
+        if (blockHitResult.getType() != HitResult.Type.MISS) {
+            this.onBlockHit(blockHitResult);
+        }
+
         this.move(MovementType.SELF, this.getVelocity());
 
 
@@ -118,15 +122,17 @@ public class BulletProjectileEntity extends ProjectileEntity {
             return;
         }
 
-        World world = entity.getWorld();
+        World world = this.getWorld();
 
         DamageSource damageSource = ModDamageTypes.createDamageSource(world, ModDamageTypes.SHOT_BY_TURRET);
+
         entity.damage(damageSource,BULLETDAMAGE);
 
+            // issue?
 
-        entity.addVelocity(this.getVelocity().multiply(0.1,0.1,0.1));
+        entity.addVelocity(this.getVelocity().multiply(0.15, 0.1, 0.15));
 
-        if(!entity.isAlive() && super.getOwner() != null && super.getOwner().getType().equals(EntityType.PLAYER)) {
+        if (!entity.isAlive() && super.getOwner() != null && super.getOwner().getType().equals(EntityType.PLAYER)) {
             entity.getServer().getPlayerManager().getPlayer(super.getOwner().getUuid())
                     .incrementStat(RinglesGunTurret.KILLS_WITH_GUN_TURRET);
             // got kill = increment stat

@@ -18,8 +18,6 @@ public class ModItemGroups {
             new Identifier(RinglesGunTurret.MOD_ID, "ringlesgunturret"),
             FabricItemGroup.builder().displayName(Text.translatable("itemgroup.ringlesgunturret"))
                     .icon(() -> new ItemStack(ModBlocks.GUN_TURRET.asItem())).entries((displayContext, entries) -> {
-                        entries.add(ModItems.GUNBARREL);
-                        entries.add(ModItems.TURRETSETTINGS);
                         entries.add(ModBlocks.GUN_TURRET);
 
                     }).build());
