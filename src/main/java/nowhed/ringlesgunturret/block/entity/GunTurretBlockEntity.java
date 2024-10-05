@@ -88,6 +88,7 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
         this.rotation = 0;
         this.clientRotation = 0;
         this.owner = null;
+        if(world != null) this.cooldown = (int) (world.random.nextFloat() * 5);
     }
 
     public GunTurretBlockEntity(BlockPos pos, BlockState state, PlayerEntity playerEntity) {
@@ -229,7 +230,7 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
             }
             if (hasArrows && cooldown <= 0) {
                 //firing cooldown [in-between bullets]
-                cooldown = 10;
+                cooldown = 8 + (int) (world.random.nextFloat() * 5);
                 world.playSound(null, pos, ModSounds.TURRET_SHOOTS, SoundCategory.BLOCKS, 0.2f, 1f + world.random.nextFloat() * 0.2F);
                 for (ItemStack item : inventory) {
                     if (isValidProjectile(item)) {

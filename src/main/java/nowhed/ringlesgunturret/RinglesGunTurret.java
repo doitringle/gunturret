@@ -22,6 +22,7 @@ import net.minecraft.world.GameRules;
 import nowhed.ringlesgunturret.block.ModBlocks;
 import nowhed.ringlesgunturret.block.entity.GunTurretBlockEntity;
 import nowhed.ringlesgunturret.block.entity.ModBlockEntities;
+import nowhed.ringlesgunturret.commands.ModCommands;
 import nowhed.ringlesgunturret.damage_type.ModDamageTypes;
 import nowhed.ringlesgunturret.entity.ModEntities;
 import nowhed.ringlesgunturret.gui.ModScreenHandlers;
@@ -72,6 +73,7 @@ public class RinglesGunTurret implements ModInitializer {
 		ModEntities.registerModEntities();
 		ModMessages.registerC2SPackets();
 		ModMessages.registerS2CPackets();
+		ModCommands.registerModCommands();
 		registerEvents();
 
 		Registry.register(Registries.CUSTOM_STAT, "kills_with_gun_turret", KILLS_WITH_GUN_TURRET);
