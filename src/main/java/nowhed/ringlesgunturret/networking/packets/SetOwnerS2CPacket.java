@@ -23,6 +23,9 @@ public class SetOwnerS2CPacket {
         if (blockEntity != null) blockEntity.setOwner(client.player);
 
         GunTurretScreen clientScreen = (GunTurretScreen) client.currentScreen;
-        if(clientScreen != null) clientScreen.claim.visible = false;
+        if(clientScreen != null) {
+            clientScreen.claim.visible = false;
+            clientScreen.setWarningBox("message.ringlesgunturret.claimsuccess");
+        }
     }
 }

@@ -43,11 +43,6 @@ public class ClaimC2SPacket {
             // allow the player to claim the unowned block entity
             gunTurretBlockEntity.setOwner(player);
 
-            // send success message
-            // cause you cant change the container block's title at will
-            // for some reason... either that or I couldn't figure it out
-            player.sendMessage(Text.translatable("message.ringlesgunturret.claimsuccess"),true);
-
             // sets owner on client so that it appears in the menu
             PacketByteBuf response2 = PacketByteBufs.create();
             response2.writeBlockPos(gunTurretBlockPos);

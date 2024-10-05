@@ -7,7 +7,10 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.*;
+import net.minecraft.client.input.KeyCodes;
+import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.render.GameRenderer;
+import net.minecraft.client.util.InputUtil;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.network.PacketByteBuf;
@@ -18,24 +21,27 @@ import nowhed.ringlesgunturret.RinglesGunTurret;
 import nowhed.ringlesgunturret.block.entity.GunTurretBlockEntity;
 import nowhed.ringlesgunturret.networking.ModMessages;
 import nowhed.ringlesgunturret.player.PlayerData;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.Optional;
 
 public class GunTurretScreen extends HandledScreen<GunTurretScreenHandler> {
     private static final Identifier TEXTURE = new Identifier(RinglesGunTurret.MOD_ID, "textures/gui/generic2x2.png");
-    public TextFieldWidget player_name_field;
-    public ButtonWidget player_name_confirm;
+
     public TextWidget name_field_label;
     public TextWidget main_label;
     public ButtonWidget target_hostiles;
     public ButtonWidget target_all;
     public ButtonWidget target_disable;
     public ButtonWidget target_onlyplayers;
-    public ButtonWidget claim;
-    public ScrollableTextWidget warning_box;
 
+    public TextFieldWidget player_name_field;
+    public ButtonWidget player_name_confirm;
     public ButtonWidget whitelist;
     public ButtonWidget blacklist;
+
+    public ButtonWidget claim;
+    public MultilineTextWidget warning_box;
 
 
     public GunTurretScreen(GunTurretScreenHandler handler, PlayerInventory inventory, Text title) {
@@ -62,14 +68,17 @@ public class GunTurretScreen extends HandledScreen<GunTurretScreenHandler> {
         name_field_label = new TextWidget(gw(410),gh(50),gw(125),gh(25),Text.translatable("gui.text.players_settings"),textRenderer);
 
 
-        warning_box = new ScrollableTextWidget(gw(150),gh(280),gw(300),gh(40),Text.literal(""),textRenderer);
-        warning_box.textColor(16777045);
+        warning_box = new MultilineTextWidget(gw(170),gh(280),Text.literal(""),textRenderer);
+        warning_box.setMaxWidth(gw(300));
+        warning_box.setMaxRows(3);
+        warning_box.setTextColor(16777045);
+        warning_box.active = true;
 
 
         main_label = new TextWidget(gw(75),gh(50),gw(100),gh(25),Text.translatable("gui.text.main_label"),textRenderer);
 
 
-        player_name_field = new TextFieldWidget(textRenderer,gw(425),gh(75),gw(150),gh(20),Text.literal(""));
+        player_name_field = new TextFieldWidget(textRenderer,gw(425),gh(75),gw(150),gh(20),Text.literal(" "));
         player_name_field.setTooltip(Tooltip.of(Text.translatable("gui.textfield.player_names.tooltip")));
 
 
@@ -138,19 +147,24 @@ public class GunTurretScreen extends HandledScreen<GunTurretScreenHandler> {
 
         requestPlayerData();
 
-        if(!this.handler.getPlayerEntity().getUuid().equals(this.handler.getBlockEntity().getOwner().getUuid())) {
+        boolean hasOwner = this.handler.getBlockEntity().getOwner() != null;
+
+        if(!hasOwner || !this.handler.getPlayerEntity().getUuid().equals(this.handler.getBlockEntity().getOwner().getUuid())) {
             setAllVisible(false);
             setWarningBox("message.ringlesgunturret.warning.not_owned_by_player");
         } else {
             setAllVisible(true);
         }
 
-        if(this.handler.getBlockEntity().getOwner() == null
+        if(!hasOwner
                 && (this.handler.getPlayerEntity().getWorld().getGameRules().getBoolean(RinglesGunTurret.SURVIVAL_CLAIM_TURRET)
             || this.handler.getPlayerEntity().isCreative())) {
             //if the turret is claimable and the player is either in creative or they can claim turrets
             //allow claiming
             claim.visible = true;
+        } else {
+            // no allow claiming
+            claim.visible = false;
         }
 
         // add left side buttons and labels
@@ -235,6 +249,7 @@ public class GunTurretScreen extends HandledScreen<GunTurretScreenHandler> {
 
     public void setWarningBox(String translatableId) {
         warning_box.setMessage(Text.translatable(translatableId));
+        //RinglesGunTurret.LOGGER.info(Text.translatable(translatableId).getString());
     }
 
     public void updateButtonPlayers(Boolean isBlacklist,Boolean press) {
@@ -298,13 +313,39 @@ public class GunTurretScreen extends HandledScreen<GunTurretScreenHandler> {
             drawMouseoverTooltip(context,mouseX,mouseY);
     }
 
-    @Override
+    /*@Override
     public void close() {
-        if(player_name_field.isFocused())
+        if(player_name_field.isFocused()) {
+            KeyBinding invKey = client.options.inventoryKey;
+
+            if (!invKey.wasPressed()) { // if the player didn't press E, they must have pressed ESC
+                player_name_field.setFocused(false);
+                RinglesGunTurret.LOGGER.info("esc press'd");
+            }
             return;
-
-
+        }
         super.close();
+    }*/
+
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if(!player_name_field.isFocused()) {
+            return super.keyPressed(keyCode, scanCode, modifiers);
+        } else {
+
+            if (keyCode == GLFW.GLFW_KEY_ESCAPE && this.shouldCloseOnEsc()) {
+                // IF FIELD FOCUSED and ESCAPE PRESSED, unfocus field, DO NOT CLOSE SCREEN
+                player_name_field.setFocused(false);
+                return true;
+            } else if (keyCode == GLFW.GLFW_KEY_ENTER) {
+                player_name_field.setFocused(false);
+                player_name_confirm.onPress();
+                return true;
+            } else if (this.getFocused().keyPressed(keyCode, scanCode, modifiers)) { // enters the key into the field
+                return true;
+            }
+        }
+        return false;
     }
 
 
