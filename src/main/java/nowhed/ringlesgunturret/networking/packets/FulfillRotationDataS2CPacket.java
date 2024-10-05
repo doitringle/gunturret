@@ -7,7 +7,7 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.math.BlockPos;
 import nowhed.ringlesgunturret.block.entity.GunTurretBlockEntity;
 
-public class FufillRotationDataS2CPacket {
+public class FulfillRotationDataS2CPacket {
     public static void receive(MinecraftClient client, ClientPlayNetworkHandler handler,
                                PacketByteBuf buf, PacketSender response) {
 

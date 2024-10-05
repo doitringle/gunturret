@@ -35,7 +35,6 @@ import nowhed.ringlesgunturret.gui.GunTurretScreenHandler;
 import nowhed.ringlesgunturret.player.PlayerData;
 import nowhed.ringlesgunturret.player.StateSaver;
 import nowhed.ringlesgunturret.sound.ModSounds;
-import nowhed.ringlesgunturret.util.ModTags;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -47,7 +46,6 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
     private boolean canPlaySound = false;
     public Box rangeToSearch =  new Box(this.getPos().getX() - range, this.getPos().getY()-0.5,this.getPos().getZ() - range,
                                 this.getPos().getX() + range, this.getPos().getY()+1.5,this.getPos().getZ() + range);
-
     private String targetSelection = "hostiles";
     private String playerList = "";
     private boolean blacklist = true;
@@ -188,7 +186,6 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
             }
 
 
-
         }
 
         if(chosen == null) {
@@ -204,7 +201,7 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
             }
 
             if(canPlaySound) {
-                world.playSound(null, pos, ModSounds.TURRET_ROTATES, SoundCategory.BLOCKS, 0.9f, 1f);
+                world.playSound(null, pos, ModSounds.TURRET_ROTATES, SoundCategory.BLOCKS, 0.9f, 1f + world.random.nextFloat() * 0.2F);
                 canPlaySound = false;
             }
 
@@ -233,7 +230,7 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
             if (hasArrows && cooldown <= 0) {
                 //firing cooldown [in-between bullets]
                 cooldown = 10;
-                world.playSound(null, pos, ModSounds.TURRET_SHOOTS, SoundCategory.BLOCKS, 0.2f, 1f);
+                world.playSound(null, pos, ModSounds.TURRET_SHOOTS, SoundCategory.BLOCKS, 0.2f, 1f + world.random.nextFloat() * 0.2F);
                 for (ItemStack item : inventory) {
                     if (isValidProjectile(item)) {
                         item.increment(-1);
@@ -320,7 +317,7 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
         // blacklist FALSE = attack ONLY players whose names are in namesList
 
         if(entity.isPlayer()) {
-            if(((PlayerEntity) entity).isCreative() || entity.isSpectator()) {
+            if(((PlayerEntity) entity).isCreative() || entity.isSpectator() || getOwner() == null) {
                 return false;
             }
             if(namesList.length == 0) {

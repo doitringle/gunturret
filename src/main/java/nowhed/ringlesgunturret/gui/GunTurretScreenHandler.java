@@ -15,7 +15,7 @@ import nowhed.ringlesgunturret.sound.ModSounds;
 public class GunTurretScreenHandler extends ScreenHandler {
 
     private final Inventory inventory;
-    public final GunTurretBlockEntity blockEntity;
+    private final GunTurretBlockEntity blockEntity;
     private final int rows;
     private PlayerEntity playerEntity;
 
@@ -32,6 +32,7 @@ public class GunTurretScreenHandler extends ScreenHandler {
         inventory.onOpen(playerEntity);
         this.blockEntity = ((GunTurretBlockEntity) blockEntity);
 
+        super.updateToClient();
         this.addSlot(new Slot(inventory, 0, 72, 26));
         this.addSlot(new Slot(inventory, 1, 90, 26));
         this.addSlot(new Slot(inventory, 2, 72, 44));
@@ -43,6 +44,13 @@ public class GunTurretScreenHandler extends ScreenHandler {
 
     }
 
+    public PlayerEntity getPlayerEntity() {
+        return this.playerEntity;
+    }
+
+    public GunTurretBlockEntity getBlockEntity() {
+        return this.blockEntity;
+    }
 
 
     @Override

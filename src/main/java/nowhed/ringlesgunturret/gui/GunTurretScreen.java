@@ -6,10 +6,7 @@ import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.gui.tooltip.Tooltip;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.gui.widget.TextWidget;
-import net.minecraft.client.gui.widget.TexturedButtonWidget;
+import net.minecraft.client.gui.widget.*;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -34,6 +31,8 @@ public class GunTurretScreen extends HandledScreen<GunTurretScreenHandler> {
     public ButtonWidget target_all;
     public ButtonWidget target_disable;
     public ButtonWidget target_onlyplayers;
+    public ButtonWidget claim;
+    public ScrollableTextWidget warning_box;
 
     public ButtonWidget whitelist;
     public ButtonWidget blacklist;
@@ -47,12 +46,12 @@ public class GunTurretScreen extends HandledScreen<GunTurretScreenHandler> {
     protected void init() {
         super.init();
 
-        /*button1 = ButtonWidget.builder(Text.translatable("gui.button.settings"), button -> {
+        /*button1 = ButtonWidget.builder(Text.translatable("gui.button.ringlesgunturret.settings"), button -> {
                     handler.setMenu(1);
                     remove(button1);
                 })
                 .dimensions(width / 2 - 250, height / 2 - 50, 150, 20)
-                .tooltip(Tooltip.of(Text.translatable("gui.button.settings.tooltip")))
+                .tooltip(Tooltip.of(Text.translatable("gui.button.ringlesgunturret.settings.tooltip")))
                 .build();
        addDraw*/
 
@@ -61,28 +60,32 @@ public class GunTurretScreen extends HandledScreen<GunTurretScreenHandler> {
         // insane gui code, ringle!
 
         name_field_label = new TextWidget(gw(410),gh(50),gw(125),gh(25),Text.translatable("gui.text.players_settings"),textRenderer);
-        addDrawableChild(name_field_label);
+
+
+        warning_box = new ScrollableTextWidget(gw(150),gh(280),gw(300),gh(40),Text.literal(""),textRenderer);
+        warning_box.textColor(16777045);
+
 
         main_label = new TextWidget(gw(75),gh(50),gw(100),gh(25),Text.translatable("gui.text.main_label"),textRenderer);
-        addDrawableChild(main_label);
+
 
         player_name_field = new TextFieldWidget(textRenderer,gw(425),gh(75),gw(150),gh(20),Text.literal(""));
         player_name_field.setTooltip(Tooltip.of(Text.translatable("gui.textfield.player_names.tooltip")));
-        addDrawableChild(player_name_field);
 
-        whitelist = ButtonWidget.builder(Text.translatable("gui.button.whitelist"), button -> {
+
+        whitelist = ButtonWidget.builder(Text.translatable("gui.button.ringlesgunturret.whitelist"), button -> {
                     updateButtonPlayers(false);
                 })
                 .dimensions(gw(425),gh(100),gw(150),gh(20))
                 .build();
-        addDrawableChild(whitelist);
 
-        blacklist = ButtonWidget.builder(Text.translatable("gui.button.blacklist"), button -> {
+
+        blacklist = ButtonWidget.builder(Text.translatable("gui.button.ringlesgunturret.blacklist"), button -> {
                     updateButtonPlayers(true);
                 })
                 .dimensions(gw(425),gh(125),gw(150),gh(20))
                 .build();
-        addDrawableChild(blacklist);
+
 
 
         player_name_confirm = ButtonWidget.builder(Text.literal("✓"), button -> {
@@ -95,43 +98,76 @@ public class GunTurretScreen extends HandledScreen<GunTurretScreenHandler> {
                 .dimensions(player_name_field.getWidth()+player_name_field.getX()+5,player_name_field.getY()-2,gh(23),gh(23))
                 .build();
 
-        addDrawableChild(player_name_confirm);
 
-        target_all = ButtonWidget.builder(Text.translatable("gui.button.target_all"), button -> {
+
+        target_all = ButtonWidget.builder(Text.translatable("gui.button.ringlesgunturret.target_all"), button -> {
                     updateButton("all");
                 })
-                .dimensions(gw(50),gh(75),gw(150),gh(20))
-                .tooltip(Tooltip.of(Text.translatable("gui.button.target_all.tooltip")))
+                .dimensions(gw(55),gh(75),gw(150),gh(20))
+                .tooltip(Tooltip.of(Text.translatable("gui.button.ringlesgunturret.target_all.tooltip")))
                 .build();
 
-        target_hostiles = ButtonWidget.builder(Text.translatable("gui.button.target_hostiles"), button -> {
+        target_hostiles = ButtonWidget.builder(Text.translatable("gui.button.ringlesgunturret.target_hostiles"), button -> {
                     updateButton("hostiles");
                 })
-                .dimensions(gw(50),gh(100),gw(150),gh(20))
-                .tooltip(Tooltip.of(Text.translatable("gui.button.target_hostiles.tooltip")))
+                .dimensions(gw(55),gh(100),gw(150),gh(20))
+                .tooltip(Tooltip.of(Text.translatable("gui.button.ringlesgunturret.target_hostiles.tooltip")))
                 .build();
-        target_onlyplayers = ButtonWidget.builder(Text.translatable("gui.button.target_onlyplayers"), button -> {
+        target_onlyplayers = ButtonWidget.builder(Text.translatable("gui.button.ringlesgunturret.target_onlyplayers"), button -> {
                     updateButton("onlyplayers");
                 })
-                .dimensions(gw(50),gh(125),gw(150),gh(20))
+                .dimensions(gw(55),gh(125),gw(150),gh(20))
                 .build();
-        target_disable = ButtonWidget.builder(Text.translatable("gui.button.target_disable"), button -> {
+        target_disable = ButtonWidget.builder(Text.translatable("gui.button.ringlesgunturret.target_disable"), button -> {
 
                     updateButton("disable");
                 })
-                .dimensions(gw(50),gh(150),gw(150),gh(20))
-                .tooltip(Tooltip.of(Text.translatable("gui.button.target_disable.tooltip")))
+                .dimensions(gw(55),gh(150),gw(150),gh(20))
+                .tooltip(Tooltip.of(Text.translatable("gui.button.ringlesgunturret.target_disable.tooltip")))
+                .build();
+
+        claim = ButtonWidget.builder(Text.translatable("gui.button.ringlesgunturret.claim_gun_turret"),button -> {
+                    //send claim request to server
+                    PacketByteBuf packet = PacketByteBufs.create();
+                    packet.writeBlockPos(this.handler.getBlockEntity().getPos());
+                    ClientPlayNetworking.send(ModMessages.CLAIM_ID, packet);
+        })
+                .dimensions(gw(75),gh(300),gw(75),gh(20))
+                .tooltip(Tooltip.of(Text.translatable("gui.button.ringlesgunturret.claim_gun_turret.tooltip")))
                 .build();
 
         requestPlayerData();
 
-        // add left side buttons
+        if(!this.handler.getPlayerEntity().getUuid().equals(this.handler.getBlockEntity().getOwner().getUuid())) {
+            setAllVisible(false);
+            setWarningBox("message.ringlesgunturret.warning.not_owned_by_player");
+        } else {
+            setAllVisible(true);
+        }
+
+        if(this.handler.getBlockEntity().getOwner() == null
+                && (this.handler.getPlayerEntity().getWorld().getGameRules().getBoolean(RinglesGunTurret.SURVIVAL_CLAIM_TURRET)
+            || this.handler.getPlayerEntity().isCreative())) {
+            //if the turret is claimable and the player is either in creative or they can claim turrets
+            //allow claiming
+            claim.visible = true;
+        }
+
+        // add left side buttons and labels
+        addDrawableChild(main_label);
         addDrawableChild(target_all);
         addDrawableChild(target_hostiles);
         addDrawableChild(target_onlyplayers);
         addDrawableChild(target_disable);
-
-
+        //add right side buttons and labels
+        addDrawableChild(name_field_label);
+        addDrawableChild(player_name_field);
+        addDrawableChild(whitelist);
+        addDrawableChild(blacklist);
+        addDrawableChild(player_name_confirm);
+        //special
+        addDrawableChild(claim);
+        addDrawableChild(warning_box);
 
     }
 
@@ -143,6 +179,19 @@ public class GunTurretScreen extends HandledScreen<GunTurretScreenHandler> {
         updateButton(targetSel,false);
         updateButtonPlayers(blklst,false);
         player_name_field.setText(playerLst);
+    }
+
+    public void setAllVisible(boolean visible) {
+        main_label.visible = visible;
+        target_all.visible = visible;
+        target_hostiles.visible = visible;
+        target_onlyplayers.visible = visible;
+        target_disable.visible = visible;
+        name_field_label.visible = visible;
+        player_name_field.visible = visible;
+        whitelist.visible = visible;
+        blacklist.visible = visible;
+        player_name_confirm.visible = visible;
     }
 
     public void updateButton(String sel){
@@ -158,6 +207,7 @@ public class GunTurretScreen extends HandledScreen<GunTurretScreenHandler> {
         switch(sel) {
             case "all":
                 target_all.active = false;
+                setWarningBox("message.ringlesgunturret.warning.targetall");
                 break;
             case "hostiles":
                 target_hostiles.active = false;
@@ -182,6 +232,11 @@ public class GunTurretScreen extends HandledScreen<GunTurretScreenHandler> {
     public void updateButtonPlayers(Boolean isBlacklist){
         updateButtonPlayers(isBlacklist, true);
     }
+
+    public void setWarningBox(String translatableId) {
+        warning_box.setMessage(Text.translatable(translatableId));
+    }
+
     public void updateButtonPlayers(Boolean isBlacklist,Boolean press) {
         // true = blacklist false = whitelist
         if(isBlacklist) {
@@ -221,13 +276,14 @@ public class GunTurretScreen extends HandledScreen<GunTurretScreenHandler> {
 
     private static Optional<Text> getPositionText(ScreenHandler handler) {
             if (handler instanceof GunTurretScreenHandler) {
-                PlayerEntity playerEntity = ((GunTurretScreenHandler) handler).blockEntity.getOwner();
+                PlayerEntity playerEntity = ((GunTurretScreenHandler) handler).getBlockEntity().getOwner();
 
                 if (playerEntity == null) return Optional.empty();
 
                 Text ownerName = playerEntity.getDisplayName();
 
-                Text output = Text.literal("Gun Turret / Owner: ").append(ownerName.copy());
+                Text output = Text.translatable("block.ringlesgunturret.gun_turret").append(Text.literal(" / Owner: ")).append(ownerName.copy());
+                // Gun Turret(append) / Owner: (append)[player name]
 
                 return ownerName != null ? Optional.of(output) : Optional.empty();
             } else {

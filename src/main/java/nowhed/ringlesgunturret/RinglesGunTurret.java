@@ -1,32 +1,24 @@
 package nowhed.ringlesgunturret;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.fabricmc.api.ModInitializer;
 
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerBlockEntityEvents;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
-import net.fabricmc.fabric.api.event.player.UseItemCallback;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.fabricmc.fabric.api.gamerule.v1.GameRuleFactory;
+import net.fabricmc.fabric.api.gamerule.v1.GameRuleRegistry;
+import net.fabricmc.fabric.api.message.v1.ServerMessageEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.client.option.KeyBinding;
-import net.minecraft.network.PacketByteBuf;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.stat.StatFormatter;
 import net.minecraft.stat.Stats;
-import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.GameRules;
 import nowhed.ringlesgunturret.block.ModBlocks;
 import nowhed.ringlesgunturret.block.entity.GunTurretBlockEntity;
 import nowhed.ringlesgunturret.block.entity.ModBlockEntities;
@@ -36,13 +28,9 @@ import nowhed.ringlesgunturret.gui.ModScreenHandlers;
 import nowhed.ringlesgunturret.item.ModItemGroups;
 import nowhed.ringlesgunturret.item.ModItems;
 import nowhed.ringlesgunturret.networking.ModMessages;
-import nowhed.ringlesgunturret.player.PlayerData;
-import nowhed.ringlesgunturret.player.StateSaver;
 import nowhed.ringlesgunturret.sound.ModSounds;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.swing.plaf.nimbus.State;
 
 public class RinglesGunTurret implements ModInitializer {
 	public static final String MOD_ID = "ringlesgunturret";
@@ -52,6 +40,22 @@ public class RinglesGunTurret implements ModInitializer {
 	public static final Identifier KILLS_WITH_GUN_TURRET = new Identifier(MOD_ID,"kills_with_gun_turret");
 
 	public static boolean HWG_INSTALLED;
+
+	/*
+	Mods used while testing: (These are not dependencies)
+	- Sodium
+	https://modrinth.com/mod/sodium
+	- Carpet
+	https://modrinth.com/mod/carpet
+	- Lithium
+	https://modrinth.com/mod/lithium
+	- Auth Me
+	https://modrinth.com/mod/auth-me
+	 */
+
+	public static final GameRules.Key<GameRules.BooleanRule> SURVIVAL_CLAIM_TURRET =
+			GameRuleRegistry.register("survivalClaimTurret", GameRules.Category.PLAYER, GameRuleFactory.createBooleanRule(true));
+	// gamerule that allows/forbids players from claiming unowned gun turrets
 
 	@Override
 	public void onInitialize() {
@@ -72,6 +76,8 @@ public class RinglesGunTurret implements ModInitializer {
 
 		Registry.register(Registries.CUSTOM_STAT, "kills_with_gun_turret", KILLS_WITH_GUN_TURRET);
 		Stats.CUSTOM.getOrCreateStat(KILLS_WITH_GUN_TURRET, StatFormatter.DEFAULT);
+
+
 
 		HWG_INSTALLED = FabricLoader.getInstance().isModLoaded("hwg");
 

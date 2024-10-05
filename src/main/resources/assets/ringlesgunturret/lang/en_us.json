@@ -8,24 +8,30 @@
   "death.attack.killed_by_turret.player": "%1$s was shot to death by a turret while trying to escape %2$s",
   "block.ringlesgunturret.no_access_message": "You don't have access to that gun turret.",
 
-  "gui.button.settings": "Targeting Settings",
+  "gui.button.ringlesgunturret.settings": "Targeting Settings",
   "gui.text.main_label": "Settings affect all turrets you own",
 
-  "gui.button.target_hostiles": "Attack all hostile mobs",
-  "gui.button.target_hostiles.tooltip": "This includes players set",
-  "gui.button.target_all": "Attack all mobs",
-  "gui.button.target_all.tooltip":"Will not attack pets, respects player settings",
-  "gui.button.target_disable": "Attack nothing",
-  "gui.button.target_disable.tooltip":"This disables all turrets",
-  "gui.button.target_onlyplayers":"Attack only players",
+  "gui.button.ringlesgunturret.target_hostiles": "Attack all hostile mobs",
+  "gui.button.ringlesgunturret.target_hostiles.tooltip": "This includes players set",
+  "gui.button.ringlesgunturret.target_all": "Attack all mobs",
+  "gui.button.ringlesgunturret.target_all.tooltip":"Will not attack pets, respects player settings",
+  "gui.button.ringlesgunturret.target_disable": "Attack nothing",
+  "gui.button.ringlesgunturret.target_disable.tooltip":"This disables all turrets",
+  "gui.button.ringlesgunturret.target_onlyplayers":"Attack only players",
+  "gui.button.ringlesgunturret.claim_gun_turret": "Claim",
+  "gui.button.ringlesgunturret.claim_gun_turret.tooltip": "Claim this unowned gun turret",
 
   "gui.text.players_settings":"Players settings",
   "gui.textfield.player_names.tooltip":"Separate names by comma",
   "gui.ringlesgunturret.button.confirm": "Confirm",
-  "gui.button.whitelist":"Attack ONLY these players",
-  "gui.button.blacklist":"Attack all BUT these players",
+  "gui.button.ringlesgunturret.whitelist":"Attack ONLY these players",
+  "gui.button.ringlesgunturret.blacklist":"Attack all BUT these players",
 
   "stat.ringlesgunturret.kills_with_gun_turret": "Kills with gun turret",
 
-  "message.warning.targetall": "Warning: The turret on this setting will attack villagers, sheep, wild horses, sniffers, and other passive mobs. It will not attack tamed animals except for angry wolves."
+  "message.ringlesgunturret.warning.targetall": "Warning: The turret on this setting will attack villagers, sheep, wild horses, sniffers, and other passive mobs. It will not attack tamed animals except for angry wolves.",
+  "message.ringlesgunturret.warning.not_owned_by_player": "You don't own this gun turret; it will not inherit any of your settings.",
+
+  "gamerule.survivalClaimTurret": "Players in survival can claim unowned gun turrets",
+  "message.ringlesgunturret.claimsuccess": "Successfully claimed turret"
 }

@@ -23,10 +23,6 @@ public class TargetSelectionC2SPacket {
         playerState.targetSelection = selection;
         //player.sendMessage(Text.literal("Set turret aim selection to: " + selection));
 
-        if(selection.equals("all")) {
-            player.sendMessage(Text.translatable("message.warning.targetall"));
-        }
-
         //String[] list = msg.split(",");
         //for (String i : list) {
         //    player.sendMessage(Text.literal(i));
