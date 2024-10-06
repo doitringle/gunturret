@@ -2,14 +2,11 @@ package nowhed.ringlesgunturret.block.entity;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.mob.Monster;
 import net.minecraft.entity.mob.PiglinEntity;
 import net.minecraft.entity.passive.*;
@@ -23,7 +20,6 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
-import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -37,10 +33,8 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
-import nowhed.ringlesgunturret.RinglesGunTurret;
 import nowhed.ringlesgunturret.entity.custom.BulletProjectileEntity;
 import nowhed.ringlesgunturret.gui.GunTurretScreenHandler;
-import nowhed.ringlesgunturret.networking.ModMessages;
 import nowhed.ringlesgunturret.player.PlayerData;
 import nowhed.ringlesgunturret.player.StateSaver;
 import nowhed.ringlesgunturret.sound.ModSounds;
@@ -152,6 +146,9 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
         Inventories.writeNbt(nbt, this.inventory);
         if(this.getOwner() != null)
             nbt.putUuid("owner_uuid", this.getOwner().getUuid());
+        else if(this.ownerUuid != null) {
+            nbt.putUuid("owner_uuid", this.ownerUuid);
+        }
     }
 
     @Nullable
@@ -491,8 +488,10 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
             return true;
         }
 
-        if(getOwner() != null && entity instanceof WolfEntity && ((WolfEntity) entity).getAngryAt().equals(getOwner().getUuid())) {
-            // closing a loophole
+        if(getOwner() != null && entity instanceof WolfEntity
+                && ((WolfEntity) entity).getAngryAt() != null
+                && ((WolfEntity) entity).getAngryAt().equals(this.ownerUuid)) {
+            // wolves attacking the owner will be shot at!
             return true;
         }
         if(this.targetSelection.equals("hostiles")) return false;

@@ -84,7 +84,16 @@ public class GunTurretBlock extends BlockWithEntity {
                 // With this call the server will request the client to open the appropriate Screenhandler
                 player.openHandledScreen(screenHandlerFactory);
             }
-        }        return ActionResult.SUCCESS;
+        } else {
+            BlockEntity blockEntity = world.getBlockEntity(pos);
+            if(blockEntity instanceof GunTurretBlockEntity gunTurretBlockEntity && gunTurretBlockEntity.getOwner() != null) {
+                // probably a dumb way to do this
+                gunTurretBlockEntity.setOwner(gunTurretBlockEntity.getOwner());
+            }
+
+        }
+
+        return ActionResult.SUCCESS;
     }
 
     /*@Nullable
