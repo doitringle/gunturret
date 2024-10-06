@@ -6,6 +6,7 @@ import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.Monster;
 import net.minecraft.entity.mob.PiglinEntity;
@@ -44,6 +45,7 @@ import java.util.List;
 import java.util.UUID;
 
 public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenHandlerFactory, ImplementedInventory, BlockEntityTicker {
+
     public static final int INVENTORY_SIZE = 4;
     public static final double BULLET_SPEED = 1.5;
     public static int range = 12;
@@ -389,8 +391,8 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
 
     } //
 
-    private ProjectileEntity getProjectileEntity(World world) {
-        ProjectileEntity projectileEntity = new BulletProjectileEntity(world);
+    private BulletProjectileEntity getProjectileEntity(World world) {
+        BulletProjectileEntity projectileEntity = new BulletProjectileEntity(world);
 
         float rotationR = (float) -((( rotation + 92) % 360) * (Math.PI / 180.0));
         float xR = (float) (BULLET_SPEED * Math.cos(rotationR));
@@ -402,7 +404,7 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
 
         projectileEntity.setVelocity(xR,0.0f,zR);
 
-        projectileEntity.setOwner(this.getOwner());
+        projectileEntity.setPlayerOwner(this.getOwner());
 
         return projectileEntity;
     }

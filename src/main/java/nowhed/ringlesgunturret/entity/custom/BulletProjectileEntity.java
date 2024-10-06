@@ -4,6 +4,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.MovementType;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.damage.DamageTypes;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.entity.projectile.ProjectileUtil;
@@ -11,6 +12,7 @@ import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
 import net.minecraft.particle.ParticleTypes;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
@@ -22,9 +24,16 @@ import nowhed.ringlesgunturret.damage_type.ModDamageTypes;
 import nowhed.ringlesgunturret.entity.ModEntities;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.UUID;
+
 public class BulletProjectileEntity extends ProjectileEntity {
-   //public static final boolean canCollide
+
     private int age;
+    @Nullable
+    private PlayerEntity playerOwner;
+    @Nullable
+    private UUID playerOwnerUuid;
+
     public static final float BULLETDAMAGE = 6;
     public static final int removeTime = 60;
     public BulletProjectileEntity(EntityType<? extends ProjectileEntity> entityType, World world) {
@@ -80,6 +89,25 @@ public class BulletProjectileEntity extends ProjectileEntity {
 
     }
 
+    public void setPlayerOwner(@Nullable PlayerEntity playerEntity) {
+        if (playerEntity != null) {
+            this.playerOwnerUuid = playerEntity.getUuid();
+            this.playerOwner = playerEntity;
+        }
+    }
+
+    @Nullable
+    public PlayerEntity getPlayerOwner() {
+        if (this.playerOwner != null && !this.playerOwner.isRemoved()) {
+            return this.playerOwner;
+        } else if (this.playerOwnerUuid != null && this.getWorld() instanceof ServerWorld) {
+            this.playerOwner = ((ServerWorld) this.getWorld()).getPlayerByUuid(this.playerOwnerUuid);
+            return this.playerOwner;
+        } else {
+            return null;
+        }
+    }
+
     @Nullable
     protected EntityHitResult getEntityCollision(Vec3d start, Vec3d end) {
         return ProjectileUtil.getEntityCollision(this.getWorld(), this, start, end, this.getBoundingBox().stretch(this.getVelocity()).expand(0.5D), this::canHit);
@@ -123,17 +151,24 @@ public class BulletProjectileEntity extends ProjectileEntity {
 
         World world = this.getWorld();
 
-        DamageSource damageSource = ModDamageTypes.createDamageSource(world, ModDamageTypes.SHOT_BY_TURRET);
+        DamageSource damageSource = ModDamageTypes.createDamageSource(world, ModDamageTypes.SHOT_BY_TURRET,this.getPlayerOwner());
+
+        // result = entity.damage(damageSource,BULLETDAMAGE);
 
         entity.damage(damageSource,BULLETDAMAGE);
 
-
         entity.addVelocity(this.getVelocity().multiply(0.15, 0.1, 0.15));
 
-        if (!entity.isAlive() && super.getOwner() != null && super.getOwner().getType().equals(EntityType.PLAYER)) {
-            entity.getServer().getPlayerManager().getPlayer(super.getOwner().getUuid())
+        if (!entity.isAlive() && getPlayerOwner() != null && entity.getServer() != null) {
+            entity.getServer().getPlayerManager().getPlayer(getPlayerOwner().getUuid())
                     .incrementStat(RinglesGunTurret.KILLS_WITH_GUN_TURRET);
             // got kill = increment stat
+            if(entity.isPlayer() && !entity.getUuid().equals(getPlayerOwner().getUuid())) {
+                entity.getServer().getPlayerManager().getPlayer(getPlayerOwner().getUuid())
+                        .incrementStat(RinglesGunTurret.PLAYER_KILLS_WITH_GUN_TURRET);
+                //got player kill = increment player stat
+            }
+
         }
 
         this.discard();

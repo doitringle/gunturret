@@ -39,6 +39,7 @@ public class RinglesGunTurret implements ModInitializer {
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
 	public static final Identifier KILLS_WITH_GUN_TURRET = new Identifier(MOD_ID,"kills_with_gun_turret");
+	public static final Identifier PLAYER_KILLS_WITH_GUN_TURRET = new Identifier(MOD_ID,"player_kills_with_gun_turret");
 
 	public static boolean HWG_INSTALLED;
 
@@ -82,6 +83,8 @@ public class RinglesGunTurret implements ModInitializer {
 		Registry.register(Registries.CUSTOM_STAT, "kills_with_gun_turret", KILLS_WITH_GUN_TURRET);
 		Stats.CUSTOM.getOrCreateStat(KILLS_WITH_GUN_TURRET, StatFormatter.DEFAULT);
 
+		Registry.register(Registries.CUSTOM_STAT, "player_kills_with_gun_turret", PLAYER_KILLS_WITH_GUN_TURRET);
+		Stats.CUSTOM.getOrCreateStat(PLAYER_KILLS_WITH_GUN_TURRET, StatFormatter.DEFAULT);
 
 
 		HWG_INSTALLED = FabricLoader.getInstance().isModLoaded("hwg");
