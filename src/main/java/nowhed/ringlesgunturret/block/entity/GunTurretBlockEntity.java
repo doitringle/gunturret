@@ -20,6 +20,10 @@ import net.minecraft.inventory.Inventories;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.listener.ClientPlayPacketListener;
+import net.minecraft.network.packet.Packet;
+import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -43,6 +47,7 @@ import nowhed.ringlesgunturret.sound.ModSounds;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.UUID;
 
 public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenHandlerFactory, ImplementedInventory, BlockEntityTicker {
     public static final int INVENTORY_SIZE = 4;
@@ -59,6 +64,7 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
     private DefaultedList<ItemStack> inventory = DefaultedList.ofSize(4,ItemStack.EMPTY);
 
     @Nullable private PlayerEntity owner;
+    @Nullable private UUID ownerUuid;
     private float rotation;
     private float clientRotation;
     private int shootTimer = 60;
@@ -70,6 +76,22 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
     public static double predictionMultiplier = -1.0;
     private Vec3d muzzlePos;
 
+    public GunTurretBlockEntity(BlockPos pos, BlockState state) {
+        super(ModBlockEntities.GUN_TURRET_BLOCK_ENTITY,pos,state);
+        this.rotation = 0;
+        this.clientRotation = 0;
+        this.owner = null;
+        this.ownerUuid = null;
+        if(world != null) this.cooldown = (int) (world.random.nextFloat() * 5);
+    }
+
+    public GunTurretBlockEntity(BlockPos pos, BlockState state, PlayerEntity playerEntity) {
+        this(pos, state);
+        this.owner = playerEntity;
+        this.ownerUuid = playerEntity.getUuid();
+        this.requestTargetSettings(playerEntity);
+    }
+
     @Override
     public DefaultedList<ItemStack> getItems() {
         return inventory;
@@ -79,14 +101,22 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
         return this.rotation;
     }
 
-    public PlayerEntity getOwner() {
-        return this.owner;
+    public @Nullable PlayerEntity getOwner() {
+        if (this.owner == null) {
+            if (this.ownerUuid != null && this.getWorld() != null) {
+                return this.getWorld().getPlayerByUuid(this.ownerUuid);
+            }
+        } else {
+            return owner;
+        }
+        return null;
     }
 
 
 
     public void setOwner(PlayerEntity playerEntity) {
         this.owner = playerEntity;
+        this.ownerUuid = playerEntity.getUuid();
         this.lockOnEntity = null;
         this.markDirty();
     }
@@ -96,20 +126,6 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
 
     }
 
-    public GunTurretBlockEntity(BlockPos pos, BlockState state) {
-        super(ModBlockEntities.GUN_TURRET_BLOCK_ENTITY,pos,state);
-        this.rotation = 0;
-        this.clientRotation = 0;
-        this.owner = null;
-        if(world != null) this.cooldown = (int) (world.random.nextFloat() * 5);
-    }
-
-    public GunTurretBlockEntity(BlockPos pos, BlockState state, PlayerEntity playerEntity) {
-        this(pos, state);
-        this.owner = playerEntity;
-        this.requestTargetSettings(playerEntity);
-    }
-
     @Override
     public int size() {
         return 4;
@@ -117,20 +133,36 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
 
     @Override
     public void readNbt(NbtCompound nbt) {
-        Inventories.readNbt(nbt, this.inventory);
-        if(nbt.containsUuid("owner_uuid"))
-            this.owner = this.getWorld().getPlayerByUuid(nbt.getUuid("owner_uuid"));
-        else
-            this.owner = null;
         super.readNbt(nbt);
+
+        Inventories.readNbt(nbt, this.inventory);
+
+        this.owner = null;
+        if (nbt.containsUuid("owner_uuid")) {
+            this.ownerUuid = nbt.getUuid("owner_uuid");
+            if(this.world != null) this.owner = this.world.getPlayerByUuid(this.ownerUuid);
+        } else {
+            this.ownerUuid = null;
+        }
     }
 
     @Override
     public void writeNbt(NbtCompound nbt) {
+        super.writeNbt(nbt);
         Inventories.writeNbt(nbt, this.inventory);
         if(this.getOwner() != null)
-            nbt.putUuid("owner_uuid",getOwner().getUuid());
-        super.writeNbt(nbt);
+            nbt.putUuid("owner_uuid", this.getOwner().getUuid());
+    }
+
+    @Nullable
+    @Override
+    public Packet<ClientPlayPacketListener> toUpdatePacket() {
+        return BlockEntityUpdateS2CPacket.create(this);
+    }
+
+    @Override
+    public NbtCompound toInitialChunkDataNbt() {
+        return this.createNbt();
     }
 
     @Environment(EnvType.CLIENT)
@@ -488,4 +520,6 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
     public double sqr(double number) {
         return number * number;
     }
+
+
 }

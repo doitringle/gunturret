@@ -17,9 +17,18 @@ import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.WritableBookItem;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtList;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 import nowhed.ringlesgunturret.block.entity.GunTurretBlockEntity;
 import nowhed.ringlesgunturret.player.PlayerData;
@@ -38,6 +47,30 @@ public class ModCommands {
                         returnText(ctx,"This is a debug command for Ringle's Gun Turret");
                         return 1;
                     })
+
+                            .then(literal("uuidBook")
+                                    .executes(ctx -> {
+
+                                        if(ctx.getSource().isExecutedByPlayer()){
+                                            PlayerEntity executor = ctx.getSource().getPlayer();
+
+                                            String text = ctx.getSource().getPlayer().getUuidAsString();
+
+                                            String command = "give " + executor.getName().getString()
+                                                    + " writable_book{pages:[\"" + text + "\"]} 1";
+                                            // kinda hacky
+
+                                            ctx.getSource().getServer().getCommandManager()
+                                                    .executeWithPrefix(executor.getCommandSource(), command);
+
+
+                                        } else {
+                                            returnText(ctx,"this can only be run by a player");
+                                            return 0;
+                                        }
+
+                                        return 1;
+                                    }))
 
                         .then(literal("getPlayerData")
                                 .executes(ctx -> getPlayerData(ctx,ctx.getSource().getPlayer()))
