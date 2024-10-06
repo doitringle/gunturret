@@ -2,8 +2,14 @@
   "block.ringlesgunturret.gun_turret": "Gun Turret",
   "item_group.ringlesgunturret": "Ringle's Gun Turret",
   "container.ringlesgunturret.gun_turret": "Gun Turret",
+
   "death.attack.killed_by_turret": "%1$s was shot to death by %2$s's turret",
   "death.attack.killed_by_turret.player": "%1$s was shot to death by a turret while trying to escape %2$s",
+
+  "death.attack.killed_by_turret_passive": "%1$s was shot to death by a turret",
+  "death.attack.killed_by_turret_passive.player": "%1$s was shot to death by a turret while trying to escape %2$s",
+
+
   "block.ringlesgunturret.no_access_message": "You don't have access to that gun turret.",
 
   "gui.button.ringlesgunturret.settings": "Targeting Settings",

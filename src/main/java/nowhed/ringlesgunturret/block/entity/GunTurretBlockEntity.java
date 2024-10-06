@@ -6,8 +6,9 @@ import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.damage.DamageTypes;
 import net.minecraft.entity.mob.Monster;
 import net.minecraft.entity.mob.PiglinEntity;
 import net.minecraft.entity.passive.*;
@@ -34,6 +35,7 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
+import nowhed.ringlesgunturret.damage_type.ModDamageTypes;
 import nowhed.ringlesgunturret.entity.custom.BulletProjectileEntity;
 import nowhed.ringlesgunturret.gui.GunTurretScreenHandler;
 import nowhed.ringlesgunturret.player.PlayerData;
@@ -69,7 +71,8 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
 
 
     public static boolean infiniteArrows = false;
-    public static double predictionMultiplier = -1.0;
+    public static double predictionMultiplier = 1.5;
+
     private Vec3d muzzlePos;
 
     public GunTurretBlockEntity(BlockPos pos, BlockState state) {
@@ -78,6 +81,9 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
         this.clientRotation = 0;
         this.owner = null;
         this.ownerUuid = null;
+        this.muzzlePos = new Vec3d(this.getPos().getX() + 0.5,
+                this.getPos().getY() + 1.2,
+                this.getPos().getZ());
         if(world != null) this.cooldown = (int) (world.random.nextFloat() * 5);
     }
 
@@ -277,11 +283,10 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
 
         // prediction only accurate if predictionMultiplier is 1.0
         Vec3d predictedPosition;
-
         float rotationR = (float) -(((rotation + 90) % 360) * (Math.PI / 180.0));
         float xR = (float) (BULLET_SPEED * Math.cos(rotationR));
         float zR = (float) (BULLET_SPEED * Math.sin(rotationR));
-        muzzlePos = new Vec3d(this.getPos().getX() + 0.5 - xR * 0.5,
+        this.muzzlePos = new Vec3d(this.getPos().getX() + 0.5 - xR * 0.5,
                 this.getPos().getY() + 1.2,
                 this.getPos().getZ() + 0.5 - zR * 0.5);
 
@@ -445,13 +450,14 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
 
 
 
-        if(entity.isInvulnerable() || entity.isInvisible() ||
-                (entity.getHeight() < 0.6
-                        && entity.getBoundingBox().contains(entity.getX(),muzzlePos.getY(),entity.getZ()))) {
+        if(!entity.canTakeDamage() || entity.isInvisible() ||
+                (entity.getHeight() < 1
+                        && !entity.getBoundingBox().contains(entity.getX(),muzzlePos.getY(),entity.getZ()))) {
             //if invulnerable, or invisible
             // if entity is too small to be hit and also low to the ground
             return false;
         }
+
 
         // blacklist TRUE = attack ALL players whose names are not in namesList
         // blacklist FALSE = attack ONLY players whose names are in namesList

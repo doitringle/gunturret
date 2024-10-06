@@ -4,7 +4,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.MovementType;
 import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.damage.DamageTypes;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.entity.projectile.ProjectileUtil;
@@ -61,7 +60,7 @@ public class BulletProjectileEntity extends ProjectileEntity {
             return;
         }
 
-        if(age > 1) {
+        if(age > 1 && this.getWorld().isClient) {
             this.getWorld().addParticle(ParticleTypes.CLOUD, getX(), getY(), getZ(), getVelocity().x * 0.1, 0.0, getVelocity().z * 0.1);
         }
         //setPos(getX() + getVelocity().x, getY(), getZ() + getVelocity().z);
@@ -151,8 +150,11 @@ public class BulletProjectileEntity extends ProjectileEntity {
 
         World world = this.getWorld();
 
-        DamageSource damageSource = ModDamageTypes.createDamageSource(world, ModDamageTypes.SHOT_BY_TURRET,this.getPlayerOwner());
-
+        DamageSource damageSource;
+        if(this.getPlayerOwner() != null)
+            damageSource = ModDamageTypes.createDamageSource(world, ModDamageTypes.SHOT_BY_TURRET,this,this.getPlayerOwner());
+        else
+            damageSource = ModDamageTypes.createDamageSource(world, ModDamageTypes.SHOT_BY_TURRET_PASSIVE,this,null);
         // result = entity.damage(damageSource,BULLETDAMAGE);
 
         entity.damage(damageSource,BULLETDAMAGE);
