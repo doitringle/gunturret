@@ -9,6 +9,8 @@ import static net.minecraft.server.command.CommandManager.argument;
 // Import everything in the CommandManager
 
 import com.mojang.brigadier.arguments.BoolArgumentType;
+import com.mojang.brigadier.arguments.DoubleArgumentType;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
@@ -19,6 +21,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 import net.minecraft.world.World;
+import nowhed.ringlesgunturret.block.entity.GunTurretBlockEntity;
 import nowhed.ringlesgunturret.player.PlayerData;
 import nowhed.ringlesgunturret.player.StateSaver;
 
@@ -36,7 +39,7 @@ public class ModCommands {
                         return 1;
                     })
 
-                        .then(literal("getplayerdata")
+                        .then(literal("getPlayerData")
                                 .executes(ctx -> getPlayerData(ctx,ctx.getSource().getPlayer()))
                             .then(argument("player name", EntityArgumentType.player())
                             .executes(ctx -> {
@@ -45,7 +48,7 @@ public class ModCommands {
                                 return getPlayerData(ctx, executor);
                             })))
 
-                    .then(literal("setplayerdata")
+                    .then(literal("setPlayerData")
                             .then(argument("player name", EntityArgumentType.player())
                                     .then(argument("targetSelection", StringArgumentType.word())
                                             .then(argument("blacklist", BoolArgumentType.bool())
@@ -64,7 +67,26 @@ public class ModCommands {
                                 }
                                 return setPlayerData(ctx, selectedPlayer, targetSelection, blacklist, playerList);
                             }))))))
-
+                            .then(literal("infiniteArrows")
+                                    .then(argument("all turrets have infinite ammo", BoolArgumentType.bool())
+                                            .executes(ctx -> {
+                                                GunTurretBlockEntity.infiniteArrows =
+                                                        BoolArgumentType.getBool(ctx,"all turrets have infinite ammo");
+                                                returnText(ctx,"Set to: " + GunTurretBlockEntity.infiniteArrows);
+                                                return 1;
+                                            })))
+                            .then(literal("setPredictionMultiplier")
+                                .executes(ctx -> {
+                                    returnText(ctx,"prediction multiplier currently: " + GunTurretBlockEntity.predictionMultiplier);
+                                    return 1;
+                                })
+                                .then(argument("prediction multiplier", DoubleArgumentType.doubleArg())
+                                        .executes(ctx -> {
+                                            GunTurretBlockEntity.predictionMultiplier =
+                                                    DoubleArgumentType.getDouble(ctx,"prediction multiplier");
+                                            returnText(ctx,"Set to: " + GunTurretBlockEntity.predictionMultiplier);
+                                            return 1;
+                                        })))
                     );
 
         }));
@@ -112,4 +134,17 @@ public class ModCommands {
     public static void returnText(CommandContext<ServerCommandSource> ctx, String text) {
         ctx.getSource().sendFeedback(() -> Text.literal(text), false);
     }
+
+    /*                            .then(literal("setPredictionIterations")
+                                    .executes(ctx -> {
+                                        returnText(ctx,"prediction iterations currently: " + GunTurretBlockEntity.predictionIterations);
+                                        return 1;
+                                    })
+                                    .then(argument("prediction iterations", IntegerArgumentType.integer(0))
+                                    .executes(ctx -> {
+                                        GunTurretBlockEntity.predictionIterations =
+                                                IntegerArgumentType.getInteger(ctx,"prediction iterations");
+                                        returnText(ctx,"Set to: " + GunTurretBlockEntity.predictionIterations);
+                                        return 1;
+                                    })))*/
 }

@@ -4,7 +4,6 @@ import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import nowhed.ringlesgunturret.block.entity.GunTurretBlockEntity;
 import nowhed.ringlesgunturret.gui.GunTurretScreen;
@@ -23,9 +22,10 @@ public class SetOwnerS2CPacket {
         if (blockEntity != null) blockEntity.setOwner(client.player);
 
         GunTurretScreen clientScreen = (GunTurretScreen) client.currentScreen;
+
         if(clientScreen != null) {
             clientScreen.claim.visible = false;
-            clientScreen.setWarningBox("message.ringlesgunturret.claimsuccess");
+            clientScreen.setWarningBox("message.ringlesgunturret.claim_success");
         }
     }
 }

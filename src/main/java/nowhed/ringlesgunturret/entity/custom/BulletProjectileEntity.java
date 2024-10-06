@@ -103,7 +103,6 @@ public class BulletProjectileEntity extends ProjectileEntity {
     @Override
     protected void onCollision(HitResult hitResult) {
 
-        System.out.println();
         if (hitResult.getType() == HitResult.Type.ENTITY) {
             this.onEntityHit((EntityHitResult)hitResult);
         } else if (hitResult.getType() == HitResult.Type.BLOCK) {
@@ -128,7 +127,6 @@ public class BulletProjectileEntity extends ProjectileEntity {
 
         entity.damage(damageSource,BULLETDAMAGE);
 
-            // issue?
 
         entity.addVelocity(this.getVelocity().multiply(0.15, 0.1, 0.15));
 

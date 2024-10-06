@@ -57,6 +57,9 @@ public class RinglesGunTurret implements ModInitializer {
 	public static final GameRules.Key<GameRules.BooleanRule> SURVIVAL_CLAIM_TURRET =
 			GameRuleRegistry.register("survivalClaimTurret", GameRules.Category.PLAYER, GameRuleFactory.createBooleanRule(true));
 	// gamerule that allows/forbids players from claiming unowned gun turrets
+	public static final GameRules.Key<GameRules.BooleanRule> SHOW_DEBUG_STUFF =
+			GameRuleRegistry.register("showRgtDebugStuff", GameRules.Category.MISC, GameRuleFactory.createBooleanRule(false));
+	//debug stuff
 
 	@Override
 	public void onInitialize() {

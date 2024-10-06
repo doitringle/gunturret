@@ -9,8 +9,6 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.NamedScreenHandlerFactory;
-import net.minecraft.screen.ScreenHandlerContext;
-import net.minecraft.screen.SimpleNamedScreenHandlerFactory;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
@@ -21,10 +19,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
-import nowhed.ringlesgunturret.RinglesGunTurret;
 import nowhed.ringlesgunturret.block.entity.GunTurretBlockEntity;
 import nowhed.ringlesgunturret.block.entity.ModBlockEntities;
-import nowhed.ringlesgunturret.gui.GunTurretScreenHandler;
 import nowhed.ringlesgunturret.sound.ModSounds;
 import org.jetbrains.annotations.Nullable;
 
@@ -33,7 +29,6 @@ public class GunTurretBlock extends BlockWithEntity {
     private static final VoxelShape SHAPE = Block.createCuboidShape(-8,0,-8,24,8,24);
 
     private PlayerEntity owner;
-
 
 
     public GunTurretBlock(Settings settings) {

@@ -9,14 +9,13 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import nowhed.ringlesgunturret.RinglesGunTurret;
 
-import net.minecraft.registry.Registry;
 import nowhed.ringlesgunturret.block.ModBlocks;
 
 public class ModItemGroups {
 
     public static final ItemGroup RINGLES_GUN_TURRET = Registry.register(Registries.ITEM_GROUP,
             new Identifier(RinglesGunTurret.MOD_ID, "ringlesgunturret"),
-            FabricItemGroup.builder().displayName(Text.translatable("itemgroup.ringlesgunturret"))
+            FabricItemGroup.builder().displayName(Text.translatable("item_group.ringlesgunturret"))
                     .icon(() -> new ItemStack(ModBlocks.GUN_TURRET.asItem())).entries((displayContext, entries) -> {
                         entries.add(ModBlocks.GUN_TURRET);
 

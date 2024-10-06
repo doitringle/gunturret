@@ -51,17 +51,15 @@ public class ClaimC2SPacket {
             PlayerData playerState = StateSaver.getPlayerState(player,server.getWorld(World.OVERWORLD));
 
             if(playerState == null) return;
+
             //also update the player's screen to their own settings
             // sets player targeting data
+
             PacketByteBuf response = PacketByteBufs.create();
             response.writeString(playerState.targetSelection);
             response.writeString(playerState.playerList);
             response.writeBoolean(playerState.blacklist);
             responseSender.sendPacket(ModMessages.GET_PLAYER_DATA_ID, response);
-
-
-
-
 
 }
         // successfully set player entity

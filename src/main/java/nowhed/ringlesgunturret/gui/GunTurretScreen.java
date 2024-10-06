@@ -7,10 +7,7 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.*;
-import net.minecraft.client.input.KeyCodes;
-import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.render.GameRenderer;
-import net.minecraft.client.util.InputUtil;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.network.PacketByteBuf;
@@ -18,9 +15,7 @@ import net.minecraft.screen.ScreenHandler;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import nowhed.ringlesgunturret.RinglesGunTurret;
-import nowhed.ringlesgunturret.block.entity.GunTurretBlockEntity;
 import nowhed.ringlesgunturret.networking.ModMessages;
-import nowhed.ringlesgunturret.player.PlayerData;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.Optional;
@@ -65,21 +60,21 @@ public class GunTurretScreen extends HandledScreen<GunTurretScreenHandler> {
 
         // insane gui code, ringle!
 
-        name_field_label = new TextWidget(gw(410),gh(50),gw(125),gh(25),Text.translatable("gui.text.players_settings"),textRenderer);
+        name_field_label = new TextWidget(gw(410),gh(50),gw(125),gh(25),Text.translatable("gui.text.ringlesgunturret.players_settings"),textRenderer);
 
 
         warning_box = new MultilineTextWidget(gw(170),gh(280),Text.literal(""),textRenderer);
         warning_box.setMaxWidth(gw(300));
-        warning_box.setMaxRows(3);
+        warning_box.setMaxRows(5);
         warning_box.setTextColor(16777045);
         warning_box.active = true;
 
 
-        main_label = new TextWidget(gw(75),gh(50),gw(100),gh(25),Text.translatable("gui.text.main_label"),textRenderer);
+        main_label = new TextWidget(gw(75),gh(50),gw(100),gh(25),Text.translatable("gui.text.ringlesgunturret.main_label"),textRenderer);
 
 
         player_name_field = new TextFieldWidget(textRenderer,gw(425),gh(75),gw(150),gh(20),Text.literal(" "));
-        player_name_field.setTooltip(Tooltip.of(Text.translatable("gui.textfield.player_names.tooltip")));
+        player_name_field.setTooltip(Tooltip.of(Text.translatable("gui.text_field.ringlesgunturret.player_names.tooltip")));
 
 
         whitelist = ButtonWidget.builder(Text.translatable("gui.button.ringlesgunturret.whitelist"), button -> {
@@ -221,7 +216,7 @@ public class GunTurretScreen extends HandledScreen<GunTurretScreenHandler> {
         switch(sel) {
             case "all":
                 target_all.active = false;
-                setWarningBox("message.ringlesgunturret.warning.targetall");
+                setWarningBox("message.ringlesgunturret.warning.target_all");
                 break;
             case "hostiles":
                 target_hostiles.active = false;
