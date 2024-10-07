@@ -80,6 +80,8 @@ public class RinglesGunTurret implements ModInitializer {
 		ModCommands.registerModCommands();
 		registerEvents();
 
+		RinglesGunTurret.LOGGER.info("Registering all required assets : " + RinglesGunTurret.MOD_ID);
+
 		Registry.register(Registries.CUSTOM_STAT, "kills_with_gun_turret", KILLS_WITH_GUN_TURRET);
 		Stats.CUSTOM.getOrCreateStat(KILLS_WITH_GUN_TURRET, StatFormatter.DEFAULT);
 

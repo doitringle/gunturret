@@ -1,15 +1,10 @@
-package nowhed.ringlesgunturret.networking.packets;
+package nowhed.ringlesgunturret.networking.packets.S2C;
 
-import net.minecraft.block.Block;
 import net.minecraft.client.MinecraftClient;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.text.Text;
-import net.minecraft.util.math.BlockPos;
-import nowhed.ringlesgunturret.block.entity.GunTurretBlockEntity;
 import nowhed.ringlesgunturret.gui.GunTurretScreen;
-import org.jetbrains.annotations.Nullable;
 
 public class FulfillPlayerDataS2CPacket {
     public static void receive(MinecraftClient client, ClientPlayNetworkHandler handler,

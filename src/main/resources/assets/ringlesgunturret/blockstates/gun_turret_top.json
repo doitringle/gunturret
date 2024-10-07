@@ -1,7 +1,16 @@
 {
 	"variants": {
-		"": {
+		"rotation=0": {
 			"model": "ringlesgunturret:block/gun_turret_top"
+		},
+		"rotation=1": {
+			"model": "ringlesgunturret:block/rotation/gun_turret_top_rotation1"
+		},
+		"rotation=2": {
+			"model": "ringlesgunturret:block/rotation/gun_turret_top_rotation2"
+		},
+		"rotation=3": {
+			"model": "ringlesgunturret:block/rotation/gun_turret_top_rotation3"
 		}
 	}
 }

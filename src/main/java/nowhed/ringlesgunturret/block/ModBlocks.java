@@ -12,7 +12,7 @@ import net.minecraft.registry.Registry;
 import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.util.Identifier;
 import nowhed.ringlesgunturret.RinglesGunTurret;
-import nowhed.ringlesgunturret.block.custom.GunTurretBlock;
+import nowhed.ringlesgunturret.block.custom.*;
 
 public class ModBlocks {
     public static final Block GUN_TURRET = registerBlock("gun_turret",
@@ -24,12 +24,14 @@ public class ModBlocks {
                     .nonOpaque()
                     .noBlockBreakParticles() // maybe remove this ill see how it looks
             ));
+    public static final Item GUN_TURRET_ITEM = registerBlockItem("gun_turret", GUN_TURRET);
 
     public static final Block GUN_TURRET_TOP = registerBlock("gun_turret_top",
-            new Block(FabricBlockSettings.copyOf(GUN_TURRET)));
+            new GunTurretBlockTop(FabricBlockSettings.copyOf(GUN_TURRET)));
+
+    //no need to register item; this should never be acquirable as an item
 
     private static Block registerBlock(String name,Block block) {
-        registerBlockItem(name, block);
         return Registry.register(Registries.BLOCK, new Identifier(RinglesGunTurret.MOD_ID,name),block);
     }
 
@@ -39,6 +41,6 @@ public class ModBlocks {
     }
 
     public static void registerModBlocks() {
-        RinglesGunTurret.LOGGER.info("Registering blocks for " + RinglesGunTurret.MOD_ID);
+        // RinglesGunTurret.LOGGER.info("Registering blocks for " + RinglesGunTurret.MOD_ID);
     }
 }

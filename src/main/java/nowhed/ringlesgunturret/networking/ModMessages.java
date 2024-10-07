@@ -4,7 +4,8 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.util.Identifier;
 import nowhed.ringlesgunturret.RinglesGunTurret;
-import nowhed.ringlesgunturret.networking.packets.*;
+import nowhed.ringlesgunturret.networking.packets.C2S.*;
+import nowhed.ringlesgunturret.networking.packets.S2C.*;
 
 public class ModMessages {
     public static final Identifier TARGET_SELECTION_ID = new Identifier(RinglesGunTurret.MOD_ID, "target_selection_packet");

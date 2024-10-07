@@ -19,6 +19,6 @@ public class ModSounds {
         return Registry.register(Registries.SOUND_EVENT, id, SoundEvent.of(id));
     }
     public static void registerSounds() {
-        RinglesGunTurret.LOGGER.info("registering sounds for " + RinglesGunTurret.MOD_ID);
+       // RinglesGunTurret.LOGGER.info("registering sounds for " + RinglesGunTurret.MOD_ID);
     }
 }

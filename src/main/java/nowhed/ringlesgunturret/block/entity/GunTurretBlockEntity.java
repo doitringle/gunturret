@@ -9,8 +9,6 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.damage.DamageTypes;
 import net.minecraft.entity.mob.Monster;
 import net.minecraft.entity.mob.PiglinEntity;
 import net.minecraft.entity.passive.*;
@@ -66,7 +64,11 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
     @Nullable private PlayerEntity owner;
     @Nullable private UUID ownerUuid;
     private float rotation;
+
+    // used for visuals, only matters on client, though they might be set or changed on server
     private float clientRotation;
+    private int barrelRotation;
+
     private int shootTimer = 60;
     private int cooldown = 2;
     @Nullable private LivingEntity lockOnEntity;
@@ -82,11 +84,12 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
         super(ModBlockEntities.GUN_TURRET_BLOCK_ENTITY,pos,state);
         this.rotation = 0;
         this.clientRotation = 0;
+        this.barrelRotation = 0;
         this.owner = null;
         this.ownerUuid = null;
-        this.muzzlePos = new Vec3d(this.getPos().getX() + 0.5,
+        this.muzzlePos = new Vec3d(this.getPos().toCenterPos().getX(),
                 this.getPos().getY() + 1.2,
-                this.getPos().getZ());
+                this.getPos().toCenterPos().getZ());
         if(world != null) this.cooldown = (int) (world.random.nextFloat() * 5);
     }
 
@@ -95,6 +98,7 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
         this.owner = playerEntity;
         this.ownerUuid = playerEntity.getUuid();
         this.requestTargetSettings(playerEntity);
+
     }
 
     @Override
@@ -185,6 +189,15 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
         return this.clientRotation;
     }
 
+    public int getBarrelRotation() {
+        return this.barrelRotation % 4;
+    }
+
+    @Environment(EnvType.CLIENT)
+    public void setBarrelRotation(int br) {
+        this.barrelRotation = (br % 4);
+    }
+
     @Override
     public void writeScreenOpeningData(ServerPlayerEntity player, PacketByteBuf buf) {
         buf.writeBlockPos(this.pos);
@@ -245,7 +258,14 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
                 );
                 if (distance < lowest) {
                     // now that we've selected a closest entity, fire a raycast to see if it is behind any blocks
-                    BlockHitResult blockHitResult = this.getWorld().raycast(new RaycastContext(entity.getPos().add(0, 1.25, 0), this.muzzlePos, RaycastContext.ShapeType.COLLIDER, RaycastContext.FluidHandling.NONE, entity));
+
+                    Vec3d entityRayHit = new Vec3d(
+                            entity.getPos().getX(),
+                            this.muzzlePos.getY(),
+                            entity.getPos().getZ()
+                    );
+
+                    BlockHitResult blockHitResult = this.getWorld().raycast(new RaycastContext(this.muzzlePos, entityRayHit, RaycastContext.ShapeType.COLLIDER, RaycastContext.FluidHandling.NONE, entity));
                     if (blockHitResult.getType() != HitResult.Type.BLOCK) {
                         lowest = distance;
                         chosen = entity;
@@ -262,6 +282,7 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
 
             shootTimer = 25;
             canPlaySound = true;
+            if(barrelRotation % 4 != 0) barrelRotation += 1;
             return;
 
         } else {
@@ -293,6 +314,7 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
         if(chosen.isPlayer()) {
             cVelocity = this.playerVelocity.multiply(predictionMultiplier,1,predictionMultiplier);
             //this might work?
+            System.out.println(cVelocity);
         }
 
         //Vec3d unitV = new Vec3d(chosen.getHorizontalFacing().getVector());
@@ -300,18 +322,15 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
 
         // prediction only accurate if predictionMultiplier is 1.0
         Vec3d predictedPosition;
-        float rotationR = (float) -(((rotation + 90) % 360) * (Math.PI / 180.0));
-        float xR = (float) (BULLET_SPEED * Math.cos(rotationR));
-        float zR = (float) (BULLET_SPEED * Math.sin(rotationR));
-        this.muzzlePos = new Vec3d(this.getPos().getX() + 0.5 - xR * 0.5,
+
+        this.muzzlePos = new Vec3d(this.getPos().toCenterPos().getX(),
                 this.getPos().getY() + 1.2,
-                this.getPos().getZ() + 0.5 - zR * 0.5);
+                this.getPos().toCenterPos().getZ());
 
         if(Math.abs(cVelocity.getX()) <= 0.03 && Math.abs(cVelocity.getZ()) <= 0.03 ) {
             //skip all the prediction
             predictedPosition = cPos;
         } else {
-
 
             //timeToHit = distance / (BULLET_SPEED);
             //a * x^2 + b * x + c == 0
@@ -372,6 +391,7 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
         thisEntity.addRotation(lerp);
 
         boolean hasArrows = false;
+
         if(shootTimer <= 0 && Math.abs(lerp) < 3) {
             // wait until locked on target, and there has been at least 60 ticks since the target changed
             for (ItemStack item : inventory) {
@@ -379,29 +399,30 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
                     hasArrows = true;
                 }
             }
-            if ((hasArrows || infiniteArrows) && cooldown <= 0) {
-                //firing cooldown [in-between bullets]
-                cooldown = 8 + (int) (world.random.nextFloat() * 5);
-                world.playSound(null, pos, ModSounds.TURRET_SHOOTS, SoundCategory.BLOCKS, 0.2f, 1f + world.random.nextFloat() * 0.2F);
-                for (ItemStack item : inventory) {
-                    if (isValidProjectile(item)) {
-                        item.increment(-1);
-                        break;
+
+            if (hasArrows || infiniteArrows) {
+
+                barrelRotation += 1;
+
+                if(cooldown <= 0) {
+                    //firing cooldown [in-between bullets]
+                    cooldown = 8 + (int) (world.random.nextFloat() * 5);
+                    world.playSound(null, pos, ModSounds.TURRET_SHOOTS, SoundCategory.BLOCKS, 0.2f, 1f + world.random.nextFloat() * 0.2F);
+                    for (ItemStack item : inventory) {
+                        if (isValidProjectile(item)) {
+                            item.increment(-1);
+                            break;
+                        }
                     }
+
+                    // create a projectile to fire
+                    ProjectileEntity projectileEntity = getProjectileEntity(world);
+
+                    // FIRE PROJECTILE
+                    world.spawnEntity(projectileEntity);
+                } else {
+                    cooldown--;
                 }
-
-
-                // FIRE PROJECTILE
-                ProjectileEntity projectileEntity = getProjectileEntity(world);
-
-                /*System.out.println("Entity position:" + chosen.getPos());
-                System.out.println("Entity velocity:" + chosen.getVelocity());
-                System.out.println("Predicted position: " + predictedPosition
-                        + " (" + Math.abs(chosen.getPos().distanceTo(predictedPosition)) + ")");*/
-
-                world.spawnEntity(projectileEntity);
-            } else {
-                cooldown--;
             }
         }
 
@@ -410,17 +431,18 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
     private BulletProjectileEntity getProjectileEntity(World world) {
         BulletProjectileEntity projectileEntity = new BulletProjectileEntity(world);
 
-        float rotationR = (float) -((( rotation + 92) % 360) * (Math.PI / 180.0));
+        float rotationR = (float) -((( this.rotation + 90) % 360) * (Math.PI / 180.0));
         float xR = (float) (BULLET_SPEED * Math.cos(rotationR));
         float zR = (float) (BULLET_SPEED * Math.sin(rotationR));
 
-        projectileEntity.setPos(muzzlePos.getX(),muzzlePos.getY(),muzzlePos.getZ());
-
-        projectileEntity.setYaw(-rotationR);
+        projectileEntity.setPosition(muzzlePos.getX(),muzzlePos.getY(),muzzlePos.getZ());
 
         projectileEntity.setVelocity(xR,0.0f,zR);
 
         projectileEntity.setPlayerOwner(this.getOwner());
+
+        projectileEntity.setDamageValue(4.0f);
+        // change later
 
         return projectileEntity;
     }
@@ -456,16 +478,13 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
 
         String[] namesList = playerList.split(",");
 
-        //System.out.println("HEIGHT : " + entity.getName() + ":" + entity.getHeight());
-        //System.out.println("EYE_Y : " + entity.getName() + ":" + (entity.getEyeY() - this.getPos().getY()));
-
 
 
         if(!entity.canTakeDamage() || entity.isInvisible() ||
-                (entity.getHeight() < 1
-                        && !entity.getBoundingBox().contains(entity.getX(),muzzlePos.getY(),entity.getZ()))) {
-            //if invulnerable, or invisible
-            // if entity is too small to be hit and also low to the ground
+                !(entity.getBoundingBox().minY - 0.5 < muzzlePos.getY() && entity.getBoundingBox().maxY + 0.5 > muzzlePos.getY())) {
+
+            // if invulnerable, or invisible
+            // or if the turret has no chance to hit the entity's hitbox
             return false;
         }
 

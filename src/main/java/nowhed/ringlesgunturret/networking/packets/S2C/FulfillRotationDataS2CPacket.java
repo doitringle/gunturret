@@ -1,4 +1,4 @@
-package nowhed.ringlesgunturret.networking.packets;
+package nowhed.ringlesgunturret.networking.packets.S2C;
 
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.minecraft.client.MinecraftClient;
@@ -14,6 +14,7 @@ public class FulfillRotationDataS2CPacket {
         //System.out.println("Received Fufill request from client " + client.getName());
 
         Float rotation = buf.readFloat();
+        int barrelRotation = buf.readInt();
         BlockPos gunTurretBlockPos = buf.readBlockPos();
 
         //System.out.println("Received rotation as " + rotation + " and block position as " + gunTurretBlockPos);
@@ -26,10 +27,9 @@ public class FulfillRotationDataS2CPacket {
 
         if(blockEntity == null) return;
 
-        //System.out.println("the blockEntity is not null and is an instance of GunTurretBlockEntity");
-
         blockEntity.setClientRotation(rotation);
 
-        //System.out.println("Setting client rotation as " + rotation);
+        blockEntity.setBarrelRotation(barrelRotation);
+
     }
 }

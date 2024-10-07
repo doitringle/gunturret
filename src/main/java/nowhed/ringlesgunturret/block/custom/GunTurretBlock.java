@@ -14,9 +14,11 @@ import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.ItemScatterer;
+import net.minecraft.util.function.BooleanBiFunction;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import nowhed.ringlesgunturret.block.entity.GunTurretBlockEntity;
@@ -24,12 +26,32 @@ import nowhed.ringlesgunturret.block.entity.ModBlockEntities;
 import nowhed.ringlesgunturret.sound.ModSounds;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.stream.Stream;
+
 public class GunTurretBlock extends BlockWithEntity {
+
+    private static final VoxelShape DETAILED_SHAPE = VoxelShapes.union(
+            VoxelShapes.cuboid(0.3125, 0, 0.9875, 0.6875, 0.2375, 1.5),
+            VoxelShapes.cuboid(0.3125, 0, -0.5, 0.6875, 0.2375, 0.0125),
+            VoxelShapes.cuboid(0.3125, 0.2375, 0.6875, 0.6875, 0.4375, 1.4375),
+            VoxelShapes.cuboid(0.3125, 0.2375, -0.4375, 0.6875, 0.4375, 0.6875),
+            VoxelShapes.cuboid(-0.5, 0, 0.3125, 0.0125, 0.2375, 0.6875),
+            VoxelShapes.cuboid(0.9875, 0, 0.3125, 1.5, 0.2375, 0.6875),
+            VoxelShapes.cuboid(-0.4375, 0.2375, 0.3125, 0.3125, 0.4375, 0.6875),
+            VoxelShapes.cuboid(0.6875, 0.2375, 0.3125, 1.4375, 0.4375, 0.6875),
+            VoxelShapes.cuboid(0.09375, 0.1125, 0.09375, 0.90625, 0.2375, 0.90625),
+            VoxelShapes.cuboid(0.0125, 0, 0.0125, 0.9875, 0.1125, 0.9875),
+            VoxelShapes.cuboid(0.18125, 0.2375, 0.18125, 0.81875, 0.3625, 0.81875),
+            VoxelShapes.cuboid(0.90625, 0.1125, 0.3125, 0.9875, 0.2375, 0.6875),
+            VoxelShapes.cuboid(0.3125, 0.10625, 0.0125, 0.6875, 0.2375, 0.09375),
+            VoxelShapes.cuboid(0.4125, 0.6875, 0.4125, 0.5875, 0.9375, 0.5875),
+            VoxelShapes.cuboid(0.325, 0.375, 0.325, 0.675, 0.69375, 0.675),
+            VoxelShapes.cuboid(0.3125, 0.1125, 0.90625, 0.6875, 0.2375, 0.9875),
+            VoxelShapes.cuboid(0.0125, 0.1125, 0.3125, 0.09375, 0.2375, 0.6875));
 
     private static final VoxelShape SHAPE = Block.createCuboidShape(-8,0,-8,24,8,24);
 
     private PlayerEntity owner;
-
 
     public GunTurretBlock(Settings settings) {
         super(settings);
@@ -52,6 +74,16 @@ public class GunTurretBlock extends BlockWithEntity {
 
     @Override
     public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+        return DETAILED_SHAPE;
+    }
+
+    @Override
+    public VoxelShape getCollisionShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+        return DETAILED_SHAPE;
+    }
+
+    @Override
+    public VoxelShape getRaycastShape(BlockState state, BlockView world, BlockPos pos) {
         return SHAPE;
     }
 

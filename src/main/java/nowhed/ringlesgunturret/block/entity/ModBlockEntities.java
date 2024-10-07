@@ -14,6 +14,6 @@ public class ModBlockEntities {
                 FabricBlockEntityTypeBuilder.create(GunTurretBlockEntity::new,
                 ModBlocks.GUN_TURRET).build());
     public static void registerBlockEntities() {
-        RinglesGunTurret.LOGGER.info("Registering block entities for " + RinglesGunTurret.MOD_ID);
+       // RinglesGunTurret.LOGGER.info("Registering block entities for " + RinglesGunTurret.MOD_ID);
     }
 }

@@ -1,4 +1,4 @@
-package nowhed.ringlesgunturret.networking.packets;
+package nowhed.ringlesgunturret.networking.packets.S2C;
 
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.minecraft.client.MinecraftClient;

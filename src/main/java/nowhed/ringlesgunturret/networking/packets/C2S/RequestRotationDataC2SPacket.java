@@ -1,10 +1,7 @@
-package nowhed.ringlesgunturret.networking.packets;
+package nowhed.ringlesgunturret.networking.packets.C2S;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
-import net.minecraft.block.Block;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.MinecraftServer;
@@ -16,33 +13,28 @@ import nowhed.ringlesgunturret.block.entity.GunTurretBlockEntity;
 import nowhed.ringlesgunturret.networking.ModMessages;
 
 public class RequestRotationDataC2SPacket {
+    // From the client, tells the server that a GunTurretBlockEntity is rendering and to request the top part rotation value and the barrel animation value
+    // for that specific blockEntity
     public static void receive(MinecraftServer server, ServerPlayerEntity player, ServerPlayNetworkHandler handler,
                                PacketByteBuf buf, PacketSender responseSender) {
-
-        //System.out.println("received rotation request from " + player.getName().getString());
 
         BlockPos gunTurretBlockPos = buf.readBlockPos();
 
         if(gunTurretBlockPos == null) return;
 
-        //System.out.println("Position is not null (" + gunTurretBlockPos + ")");
-
         BlockEntity blockEntity = player.getWorld().getWorldChunk(gunTurretBlockPos).getBlockEntity(gunTurretBlockPos, WorldChunk.CreationType.IMMEDIATE);
-
-        //System.out.println(blockEntity);
 
         if(!(blockEntity instanceof GunTurretBlockEntity)) return;
 
-        //System.out.println("blockEntity is instance of GunTurretBlockEntity");
-
         float rotation = ((GunTurretBlockEntity) blockEntity).getRotation();
-
-        //System.out.println("Got rotation as " + rotation);
+        int barrelRotation = ((GunTurretBlockEntity) blockEntity).getBarrelRotation();
 
         PacketByteBuf response = PacketByteBufs.create();
+
         response.writeFloat(rotation);
+        response.writeInt(barrelRotation);
         response.writeBlockPos(gunTurretBlockPos);
-        //System.out.println("Sending response...");
+
         responseSender.sendPacket(ModMessages.ROT_DATA_ID,response);
 
     }

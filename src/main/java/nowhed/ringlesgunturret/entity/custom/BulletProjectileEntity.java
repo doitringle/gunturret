@@ -2,7 +2,6 @@ package nowhed.ringlesgunturret.entity.custom;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.MovementType;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
@@ -32,16 +31,19 @@ public class BulletProjectileEntity extends ProjectileEntity {
     private PlayerEntity playerOwner;
     @Nullable
     private UUID playerOwnerUuid;
+    private float damageValue;
 
     public static final float BULLETDAMAGE = 6;
     public static final int removeTime = 60;
     public BulletProjectileEntity(EntityType<? extends ProjectileEntity> entityType, World world) {
         super(entityType, world);
         this.age = 0;
+        this.noClip = true;
+        this.damageValue = 4.0f;
     }
 
     public BulletProjectileEntity(World world) {
-        super(ModEntities.BULLET_PROJECTILE, world);
+        this(ModEntities.BULLET_PROJECTILE, world);
     }
 
     @Override
@@ -52,8 +54,8 @@ public class BulletProjectileEntity extends ProjectileEntity {
     @Override
     public void tick() {
         super.tick();
-        this.age++;
 
+        this.age++;
 
         if (this.age >= removeTime) {
             this.remove(RemovalReason.DISCARDED);
@@ -63,17 +65,16 @@ public class BulletProjectileEntity extends ProjectileEntity {
         if(age > 1 && this.getWorld().isClient) {
             this.getWorld().addParticle(ParticleTypes.CLOUD, getX(), getY(), getZ(), getVelocity().x * 0.1, 0.0, getVelocity().z * 0.1);
         }
+
         //setPos(getX() + getVelocity().x, getY(), getZ() + getVelocity().z);
 
         Vec3d currentPosition = this.getPos();
 
         Vec3d nextPosition = currentPosition.add(this.getVelocity());
 
-        this.noClip = true;
-
         EntityHitResult entityHitResult = this.getEntityCollision(currentPosition, nextPosition);
 
-        if (entityHitResult != null && entityHitResult.getEntity().canHit() && !entityHitResult.getEntity().getType().equals(ModEntities.BULLET_PROJECTILE)) {
+        if (entityHitResult != null && !entityHitResult.getEntity().getType().equals(ModEntities.BULLET_PROJECTILE)) {
             this.onEntityHit(entityHitResult);
         }
 
@@ -83,9 +84,12 @@ public class BulletProjectileEntity extends ProjectileEntity {
             this.onBlockHit(blockHitResult);
         }
 
-        this.move(MovementType.SELF, this.getVelocity());
+        this.setPosition(this.getX() + this.getVelocity().x, this.getY(), this.getZ() + this.getVelocity().z);
 
+    }
 
+    public void setDamageValue(float dmg) {
+        this.damageValue = dmg;
     }
 
     public void setPlayerOwner(@Nullable PlayerEntity playerEntity) {
@@ -112,7 +116,7 @@ public class BulletProjectileEntity extends ProjectileEntity {
 
     @Nullable
     protected EntityHitResult getEntityCollision(Vec3d start, Vec3d end) {
-        return ProjectileUtil.getEntityCollision(this.getWorld(), this, start, end, this.getBoundingBox().stretch(this.getVelocity()).expand(0.5D), this::canHit);
+        return ProjectileUtil.getEntityCollision(this.getWorld(), this, start, end, this.getBoundingBox().stretch(this.getVelocity()).expand(1.0), this::canHit);
     }
 
     @Override
@@ -164,9 +168,9 @@ public class BulletProjectileEntity extends ProjectileEntity {
             }
             // result = entity.damage(damageSource,BULLETDAMAGE);
 
-            entity.damage(damageSource, BULLETDAMAGE);
+            entity.damage(damageSource, this.damageValue);
 
-            entity.addVelocity(this.getVelocity().multiply(0.1, 0.05, 0.1));
+            entity.addVelocity(this.getVelocity().multiply(0.05, 0.03, 0.05));
 
             if (!entity.isAlive() && getPlayerOwner() != null && entity.getServer() != null) {
                 entity.getServer().getPlayerManager().getPlayer(getPlayerOwner().getUuid())

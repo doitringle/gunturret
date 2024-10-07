@@ -17,6 +17,6 @@ public class ModScreenHandlers {
             Registry.register(Registries.SCREEN_HANDLER, new Identifier(RinglesGunTurret.MOD_ID,"gun_turret_config"),
                     new ExtendedScreenHandlerType<>(ItemSettingsScreenHandler::new));*/
     public static void registerScreenHandlers() {
-        RinglesGunTurret.LOGGER.info("Registering screen handlers for " + RinglesGunTurret.MOD_ID);
+       // RinglesGunTurret.LOGGER.info("Registering screen handlers for " + RinglesGunTurret.MOD_ID);
     }
 }
