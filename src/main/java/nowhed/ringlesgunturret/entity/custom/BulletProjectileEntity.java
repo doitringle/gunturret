@@ -92,6 +92,9 @@ public class BulletProjectileEntity extends ProjectileEntity {
         if (playerEntity != null) {
             this.playerOwnerUuid = playerEntity.getUuid();
             this.playerOwner = playerEntity;
+        } else {
+            this.playerOwnerUuid = null;
+            this.playerOwner = null;
         }
     }
 
@@ -142,39 +145,43 @@ public class BulletProjectileEntity extends ProjectileEntity {
 
         super.onEntityHit(entityHitResult);
 
-        Entity entity = entityHitResult.getEntity();
+        if (!this.getWorld().isClient) {
 
-        if(!entity.canBeHitByProjectile()) {
-            return;
-        }
+            Entity entity = entityHitResult.getEntity();
 
-        World world = this.getWorld();
-
-        DamageSource damageSource;
-        if(this.getPlayerOwner() != null)
-            damageSource = ModDamageTypes.createDamageSource(world, ModDamageTypes.SHOT_BY_TURRET,this,this.getPlayerOwner());
-        else
-            damageSource = ModDamageTypes.createDamageSource(world, ModDamageTypes.SHOT_BY_TURRET_PASSIVE,this,null);
-        // result = entity.damage(damageSource,BULLETDAMAGE);
-
-        entity.damage(damageSource,BULLETDAMAGE);
-
-        entity.addVelocity(this.getVelocity().multiply(0.15, 0.1, 0.15));
-
-        if (!entity.isAlive() && getPlayerOwner() != null && entity.getServer() != null) {
-            entity.getServer().getPlayerManager().getPlayer(getPlayerOwner().getUuid())
-                    .incrementStat(RinglesGunTurret.KILLS_WITH_GUN_TURRET);
-            // got kill = increment stat
-            if(entity.isPlayer() && !entity.getUuid().equals(getPlayerOwner().getUuid())) {
-                entity.getServer().getPlayerManager().getPlayer(getPlayerOwner().getUuid())
-                        .incrementStat(RinglesGunTurret.PLAYER_KILLS_WITH_GUN_TURRET);
-                //got player kill = increment player stat
+            if (!entity.canBeHitByProjectile()) {
+                return;
             }
 
+            World world = this.getWorld();
+
+            DamageSource damageSource;
+
+            if (this.getPlayerOwner() != null) {
+                damageSource = ModDamageTypes.createDamageSource(world, ModDamageTypes.SHOT_BY_TURRET, this, this.getPlayerOwner());
+            } else {
+                damageSource = ModDamageTypes.createDamageSource(world, ModDamageTypes.SHOT_BY_TURRET_PASSIVE, this, null);
+            }
+            // result = entity.damage(damageSource,BULLETDAMAGE);
+
+            entity.damage(damageSource, BULLETDAMAGE);
+
+            entity.addVelocity(this.getVelocity().multiply(0.1, 0.05, 0.1));
+
+            if (!entity.isAlive() && getPlayerOwner() != null && entity.getServer() != null) {
+                entity.getServer().getPlayerManager().getPlayer(getPlayerOwner().getUuid())
+                        .incrementStat(RinglesGunTurret.KILLS_WITH_GUN_TURRET);
+                // got kill = increment stat
+                if (entity.isPlayer() && !entity.getUuid().equals(getPlayerOwner().getUuid())) {
+                    entity.getServer().getPlayerManager().getPlayer(getPlayerOwner().getUuid())
+                            .incrementStat(RinglesGunTurret.PLAYER_KILLS_WITH_GUN_TURRET);
+                    //got player kill = increment player stat
+                }
+
+            }
+
+            this.discard();
         }
 
-        this.discard();
     }
-
-
 }

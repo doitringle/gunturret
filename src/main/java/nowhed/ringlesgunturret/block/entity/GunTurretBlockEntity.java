@@ -2,6 +2,8 @@ package nowhed.ringlesgunturret.block.entity;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
@@ -35,9 +37,9 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
-import nowhed.ringlesgunturret.damage_type.ModDamageTypes;
 import nowhed.ringlesgunturret.entity.custom.BulletProjectileEntity;
 import nowhed.ringlesgunturret.gui.GunTurretScreenHandler;
+import nowhed.ringlesgunturret.networking.ModMessages;
 import nowhed.ringlesgunturret.player.PlayerData;
 import nowhed.ringlesgunturret.player.StateSaver;
 import nowhed.ringlesgunturret.sound.ModSounds;
@@ -74,6 +76,7 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
     public static double predictionMultiplier = 1.5;
 
     private Vec3d muzzlePos;
+    private Vec3d playerVelocity = new Vec3d(0,0,0);
 
     public GunTurretBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.GUN_TURRET_BLOCK_ENTITY,pos,state);
@@ -114,7 +117,10 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
         return null;
     }
 
-
+    public void setPlayerVelocity(Vec3d playerV) {
+        this.playerVelocity = playerV;
+        System.out.println(playerV);
+    }
 
     public void setOwner(PlayerEntity playerEntity) {
         this.owner = playerEntity;
@@ -240,7 +246,7 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
                 );
                 if (distance < lowest) {
                     // now that we've selected a closest entity, fire a raycast to see if it is behind any blocks
-                    BlockHitResult blockHitResult = this.getWorld().raycast(new RaycastContext(entity.getPos().add(0, 1.25, 0), this.getPos().toCenterPos(), RaycastContext.ShapeType.COLLIDER, RaycastContext.FluidHandling.NONE, entity));
+                    BlockHitResult blockHitResult = this.getWorld().raycast(new RaycastContext(entity.getPos().add(0, 1.25, 0), this.muzzlePos, RaycastContext.ShapeType.COLLIDER, RaycastContext.FluidHandling.NONE, entity));
                     if (blockHitResult.getType() != HitResult.Type.BLOCK) {
                         lowest = distance;
                         chosen = entity;
@@ -270,6 +276,13 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
                 canPlaySound = false;
             }
 
+            if(chosen.isPlayer()) {
+                // request player's velocity for predictive aiming calculation
+                PacketByteBuf buf = PacketByteBufs.create();
+                buf.writeBlockPos(this.getPos());
+                ServerPlayNetworking.send((ServerPlayerEntity) chosen, ModMessages.REQUEST_PLAYER_VELOCITY_ID, buf);
+            }
+
         }
 
         // predictive aiming calculation
@@ -277,6 +290,11 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
 
         Vec3d cPos = chosen.getBoundingBox().getCenter();
         Vec3d cVelocity = chosen.getVelocity().multiply(predictionMultiplier,1,predictionMultiplier);
+
+        if(chosen.isPlayer()) {
+            cVelocity = this.playerVelocity.multiply(predictionMultiplier,1,predictionMultiplier);
+            //this might work?
+        }
 
         //Vec3d unitV = new Vec3d(chosen.getHorizontalFacing().getVector());
         //System.out.println(chosen.getHorizontalFacing().getVector() + " :  " + cVelocity);
@@ -342,12 +360,6 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
             );
 
         }
-
-
-
-
-
-
 
         //https://stackoverflow.com/questions/2248876/2d-game-fire-at-a-moving-target-by-predicting-intersection-of-projectile-and-u
 
