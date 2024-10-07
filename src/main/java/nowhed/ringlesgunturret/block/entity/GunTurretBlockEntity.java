@@ -119,7 +119,6 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
 
     public void setPlayerVelocity(Vec3d playerV) {
         this.playerVelocity = playerV;
-        System.out.println(playerV);
     }
 
     public void setOwner(PlayerEntity playerEntity) {
