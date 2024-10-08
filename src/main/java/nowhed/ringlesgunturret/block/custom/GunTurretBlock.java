@@ -14,7 +14,6 @@ import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.ItemScatterer;
-import net.minecraft.util.function.BooleanBiFunction;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.shape.VoxelShape;
@@ -25,8 +24,6 @@ import nowhed.ringlesgunturret.block.entity.GunTurretBlockEntity;
 import nowhed.ringlesgunturret.block.entity.ModBlockEntities;
 import nowhed.ringlesgunturret.sound.ModSounds;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.stream.Stream;
 
 public class GunTurretBlock extends BlockWithEntity {
 

@@ -38,3 +38,7 @@ hs_err_*.log
 replay_*.log
 *.hprof
 *.jfr
+/src/main/generated/.cache/
+/src/main/resources/assets/ringlesgunturret/models/block/gun_turret_base_collisionbox.bbmodel
+/src/main/resources/assets/ringlesgunturret/models/block/gun_turret_base.bbmodel
+/src/main/resources/assets/ringlesgunturret/extra/gun_turret_collision_model.txt

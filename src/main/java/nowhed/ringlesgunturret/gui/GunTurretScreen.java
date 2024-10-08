@@ -62,13 +62,11 @@ public class GunTurretScreen extends HandledScreen<GunTurretScreenHandler> {
 
         name_field_label = new TextWidget(gw(410),gh(50),gw(125),gh(25),Text.translatable("gui.text.ringlesgunturret.players_settings"),textRenderer);
 
-
         warning_box = new MultilineTextWidget(gw(170),gh(280),Text.literal(""),textRenderer);
         warning_box.setMaxWidth(gw(300));
         warning_box.setMaxRows(5);
         warning_box.setTextColor(16777045);
         warning_box.active = true;
-
 
         main_label = new TextWidget(gw(75),gh(50),gw(100),gh(25),Text.translatable("gui.text.ringlesgunturret.main_label"),textRenderer);
 
@@ -308,19 +306,6 @@ public class GunTurretScreen extends HandledScreen<GunTurretScreenHandler> {
             drawMouseoverTooltip(context,mouseX,mouseY);
     }
 
-    /*@Override
-    public void close() {
-        if(player_name_field.isFocused()) {
-            KeyBinding invKey = client.options.inventoryKey;
-
-            if (!invKey.wasPressed()) { // if the player didn't press E, they must have pressed ESC
-                player_name_field.setFocused(false);
-                RinglesGunTurret.LOGGER.info("esc press'd");
-            }
-            return;
-        }
-        super.close();
-    }*/
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {

@@ -2,6 +2,7 @@ package nowhed.ringlesgunturret.entity.custom;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
@@ -12,7 +13,6 @@ import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
 import net.minecraft.particle.ParticleTypes;
-import net.minecraft.potion.PotionUtil;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
@@ -23,6 +23,7 @@ import net.minecraft.world.World;
 import nowhed.ringlesgunturret.RinglesGunTurret;
 import nowhed.ringlesgunturret.damage_type.ModDamageTypes;
 import nowhed.ringlesgunturret.entity.ModEntities;
+import nowhed.ringlesgunturret.util.ModUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
@@ -180,11 +181,12 @@ public class BulletProjectileEntity extends ProjectileEntity {
 
         if (!this.getWorld().isClient) {
 
-            Entity entity = entityHitResult.getEntity();
+            Entity ent = entityHitResult.getEntity();
 
-            if (!entity.canBeHitByProjectile()) {
+            if (!ent.canBeHitByProjectile()) {
                 return;
             }
+            LivingEntity entity = (LivingEntity) ent;
 
             World world = this.getWorld();
 
@@ -195,11 +197,12 @@ public class BulletProjectileEntity extends ProjectileEntity {
             } else {
                 damageSource = ModDamageTypes.createDamageSource(world, ModDamageTypes.SHOT_BY_TURRET_PASSIVE, this, null);
             }
-            // result = entity.damage(damageSource,BULLETDAMAGE);
 
             entity.damage(damageSource, this.damageValue);
 
-            entity.addVelocity(this.getVelocity().multiply(0.05, 0.03, 0.05));
+            entity.takeKnockback(0.15f, -this.getVelocity().getX(), -this.getVelocity().getZ());
+
+            //System.out.println(ModUtils.getOfflinePlayerName(getServer(),this.playerOwnerUuid));
 
             if (!entity.isAlive() && getPlayerOwner() != null && entity.getServer() != null) {
                 entity.getServer().getPlayerManager().getPlayer(getPlayerOwner().getUuid())

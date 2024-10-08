@@ -33,6 +33,8 @@ import nowhed.ringlesgunturret.sound.ModSounds;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.UUID;
+
 public class RinglesGunTurret implements ModInitializer {
 	public static final String MOD_ID = "ringlesgunturret";
 
@@ -163,5 +165,6 @@ public class RinglesGunTurret implements ModInitializer {
 			return ActionResult.PASS;
 		});
 	}
+
 }
 
