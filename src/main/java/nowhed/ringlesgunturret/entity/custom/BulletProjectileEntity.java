@@ -23,7 +23,6 @@ import net.minecraft.world.World;
 import nowhed.ringlesgunturret.RinglesGunTurret;
 import nowhed.ringlesgunturret.damage_type.ModDamageTypes;
 import nowhed.ringlesgunturret.entity.ModEntities;
-import nowhed.ringlesgunturret.util.ModUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;

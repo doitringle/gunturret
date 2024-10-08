@@ -11,6 +11,9 @@
 
   "block.ringlesgunturret.no_access_message": "You don't have access to that gun turret.",
 
+  "block_entity.ringlesgunturret.no_owner": "No owner",
+  "block_entity.ringlesgunturret.health": "Health: ",
+
   "gui.button.ringlesgunturret.settings": "Targeting Settings",
   "gui.text.ringlesgunturret.main_label": "Settings affect all turrets you own",
 
