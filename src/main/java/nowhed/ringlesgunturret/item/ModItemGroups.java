@@ -18,7 +18,7 @@ public class ModItemGroups {
             FabricItemGroup.builder().displayName(Text.translatable("item_group.ringlesgunturret"))
                     .icon(() -> new ItemStack(ModBlocks.GUN_TURRET.asItem())).entries((displayContext, entries) -> {
                         entries.add(ModBlocks.GUN_TURRET);
-
+                        entries.add(ModItems.REINFORCED_ARROW);
                     }).build());
 
     public static void registerItemGroups() {

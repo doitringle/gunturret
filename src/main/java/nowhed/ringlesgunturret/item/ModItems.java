@@ -1,9 +1,6 @@
 package nowhed.ringlesgunturret.item;
 
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
-import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroupEntries;
-import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
-import net.minecraft.item.ItemGroups;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.Registries;
 import nowhed.ringlesgunturret.RinglesGunTurret;
@@ -18,6 +15,8 @@ public class ModItems {
         entries.add(GUNBARREL);
         entries.add(TURRETSETTINGS);
     }*/
+
+    public static final Item REINFORCED_ARROW = registerItem("reinforced_arrow",new Item(new FabricItemSettings()));
 
     private static Item registerItem(String name, Item item) {
         return Registry.register(Registries.ITEM, new Identifier(RinglesGunTurret.MOD_ID, name), item);

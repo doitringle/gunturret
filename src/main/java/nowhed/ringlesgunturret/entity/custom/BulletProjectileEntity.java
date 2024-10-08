@@ -6,10 +6,13 @@ import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.entity.projectile.ProjectileUtil;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
 import net.minecraft.particle.ParticleTypes;
+import net.minecraft.potion.PotionUtil;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
@@ -45,6 +48,32 @@ public class BulletProjectileEntity extends ProjectileEntity {
     public BulletProjectileEntity(World world) {
         this(ModEntities.BULLET_PROJECTILE, world);
     }
+
+    @Override
+    public void readCustomDataFromNbt(NbtCompound nbt) {
+
+        if (nbt.containsUuid("playerOwnerUuid")) {
+            this.playerOwnerUuid = nbt.getUuid("playerOwnerUuid");
+            this.playerOwner = this.getWorld().getPlayerByUuid(this.playerOwnerUuid);
+        }
+        if(nbt.contains("damageValue",NbtElement.FLOAT_TYPE)) {
+            this.damageValue = nbt.getFloat("damageValue");
+        }
+        if(nbt.contains("age",NbtElement.INT_TYPE)) {
+            this.age = nbt.getInt("age");
+        }
+
+    }
+
+    @Override
+    public void writeCustomDataToNbt(NbtCompound nbt) {
+
+        nbt.putUuid("playerOwnerUuid",this.playerOwnerUuid);
+        nbt.putFloat("damageValue",this.damageValue);
+        nbt.putInt("age",this.age);
+
+    }
+
 
     @Override
     protected void initDataTracker() {

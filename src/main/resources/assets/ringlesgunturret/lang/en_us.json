@@ -9,7 +9,6 @@
   "death.attack.killed_by_turret_passive": "%1$s was shot to death by a turret",
   "death.attack.killed_by_turret_passive.player": "%1$s was shot to death by a turret while trying to escape %2$s",
 
-
   "block.ringlesgunturret.no_access_message": "You don't have access to that gun turret.",
 
   "gui.button.ringlesgunturret.settings": "Targeting Settings",
@@ -38,5 +37,7 @@
   "message.ringlesgunturret.warning.not_owned_by_player": "You don't own this gun turret; it will not inherit any of your settings.",
 
   "gamerule.survivalClaimTurret": "Players in survival can claim unowned gun turrets",
-  "message.ringlesgunturret.claim_success": "Successfully claimed turret"
+  "message.ringlesgunturret.claim_success": "Successfully claimed turret",
+
+  "item.ringlesgunturret.reinforced_arrow": "Reinforced Arrow"
 }
