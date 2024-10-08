@@ -1,0 +1,14 @@
+{
+  "replace": false,
+  "values": [
+    "ringlesgunturret:reinforced_arrow",
+    {
+      "id": "hwg:sniper_round",
+      "required": false
+    },
+    {
+      "id": "hwg:rocket",
+      "required": false
+    }
+  ]
+}

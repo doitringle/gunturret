@@ -60,7 +60,7 @@ public class RinglesGunTurret implements ModInitializer {
 	// gamerule that allows/forbids players from claiming unowned gun turrets
 	public static final GameRules.Key<GameRules.BooleanRule> SHOW_DEBUG_STUFF =
 			GameRuleRegistry.register("showRgtDebugStuff", GameRules.Category.MISC, GameRuleFactory.createBooleanRule(false));
-	//debug stuff
+	// debug stuff
 
 	@Override
 	public void onInitialize() {
@@ -76,7 +76,7 @@ public class RinglesGunTurret implements ModInitializer {
 		ModDamageTypes.registerModDamageTypes();
 		ModEntities.registerModEntities();
 		ModMessages.registerC2SPackets();
-		ModMessages.registerS2CPackets();
+		//ModMessages.registerS2CPackets();
 		ModCommands.registerModCommands();
 		registerEvents();
 
@@ -99,7 +99,7 @@ public class RinglesGunTurret implements ModInitializer {
 
 	public static void registerEvents() {
 
-		/*UseItemCallback.EVENT.register(((player, world, hand) -> {
+		/* UseItemCallback.EVENT.register(((player, world, hand) -> {
 			if (!world.isClient() && player.getStackInHand(hand).isOf(ModItems.TURRETSETTINGS)) {
 				PlayerData playerState = StateSaver.getPlayerState(player);
 				MinecraftServer server = world.getServer();
@@ -124,7 +124,7 @@ public class RinglesGunTurret implements ModInitializer {
 
 			}
 			return new TypedActionResult<>(ActionResult.PASS, player.getStackInHand(hand));
-		}));*/
+		})); */
 
 		ServerBlockEntityEvents.BLOCK_ENTITY_LOAD.register(((blockEntity, world) -> {
 			if(blockEntity instanceof GunTurretBlockEntity) {

@@ -2,7 +2,6 @@ package nowhed.ringlesgunturret.util;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.item.Item;
 import net.minecraft.item.Items;
 import net.minecraft.registry.RegistryKeys;
@@ -21,13 +20,13 @@ public class ModTagGenerator extends FabricTagProvider.ItemTagProvider {
 
     private static final TagKey<Item> VALID_TURRET_PROJECTILE = TagKey.of(RegistryKeys.ITEM,
             new Identifier(RinglesGunTurret.MOD_ID,"valid_turret_projectile"));
-
     private static final TagKey<Item> WEAK_AMMO = TagKey.of(RegistryKeys.ITEM,
             new Identifier(RinglesGunTurret.MOD_ID,"weak_ammo"));
     private static final TagKey<Item> MEDIUM_AMMO = TagKey.of(RegistryKeys.ITEM,
             new Identifier(RinglesGunTurret.MOD_ID,"medium_ammo"));
     private static final TagKey<Item> STRONG_AMMO = TagKey.of(RegistryKeys.ITEM,
             new Identifier(RinglesGunTurret.MOD_ID,"strong_ammo"));
+
     @Override
     protected void configure(RegistryWrapper.WrapperLookup arg) {
 
@@ -41,6 +40,7 @@ public class ModTagGenerator extends FabricTagProvider.ItemTagProvider {
                 .add(Items.TIPPED_ARROW)
                 .add(Items.FIREWORK_ROCKET)
                 .addOptional(new Identifier("hwg","bullets"))
+                .addOptional(new Identifier("hwg","shotgun_shell"))
                 .addOptional(new Identifier("hwg","silver_bullet"));
         getOrCreateTagBuilder(STRONG_AMMO)
                 .add(ModItems.REINFORCED_ARROW)
@@ -48,11 +48,10 @@ public class ModTagGenerator extends FabricTagProvider.ItemTagProvider {
                 .addOptional(new Identifier("hwg","rocket"));
 
 
-       /* if(FabricLoader.getInstance().isModLoaded("hwg")) {
-            getOrCreateTagBuilder(MEDIUM_AMMO)
+        getOrCreateTagBuilder(VALID_TURRET_PROJECTILE)
+                .addTag(WEAK_AMMO)
+                .addTag(MEDIUM_AMMO)
+                .addTag(STRONG_AMMO);
 
-
-
-        }*/
     }
 }

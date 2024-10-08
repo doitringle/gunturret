@@ -1,0 +1,8 @@
+{
+  "replace": false,
+  "values": [
+    "#ringlesgunturret:weak_ammo",
+    "#ringlesgunturret:medium_ammo",
+    "#ringlesgunturret:strong_ammo"
+  ]
+}

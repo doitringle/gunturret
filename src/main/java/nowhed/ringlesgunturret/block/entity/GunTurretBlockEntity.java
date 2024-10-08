@@ -14,9 +14,11 @@ import net.minecraft.entity.mob.PiglinEntity;
 import net.minecraft.entity.passive.*;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.entity.projectile.FireworkRocketEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.inventory.Inventories;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.listener.ClientPlayPacketListener;
@@ -32,15 +34,18 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
 import nowhed.ringlesgunturret.entity.custom.BulletProjectileEntity;
 import nowhed.ringlesgunturret.gui.GunTurretScreenHandler;
+import nowhed.ringlesgunturret.item.ModTags;
 import nowhed.ringlesgunturret.networking.ModMessages;
 import nowhed.ringlesgunturret.player.PlayerData;
 import nowhed.ringlesgunturret.player.StateSaver;
 import nowhed.ringlesgunturret.sound.ModSounds;
+import nowhed.ringlesgunturret.util.ModTagGenerator;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -366,7 +371,7 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
                     if(solution < 0) solution = Math.max(s1,s2);
                 } else {
                     //if discriminant < 0, there is no chance to hit the target.
-                    //System.out.println("No chance!" + discriminant);
+
                     return;
                 }
             }
@@ -408,16 +413,31 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
                     //firing cooldown [in-between bullets]
                     cooldown = 8 + (int) (world.random.nextFloat() * 5);
                     world.playSound(null, pos, ModSounds.TURRET_SHOOTS, SoundCategory.BLOCKS, 0.2f, 1f + world.random.nextFloat() * 0.2F);
+                    ItemStack selected = Items.ARROW.getDefaultStack();
                     for (ItemStack item : inventory) {
                         if (isValidProjectile(item)) {
-                            item.increment(-1);
+                            selected = item.copyWithCount(1);
+                            item.decrement(1);
                             break;
                         }
                     }
 
-                    // create a projectile to fire
-                    ProjectileEntity projectileEntity = getProjectileEntity(world);
+                    ProjectileEntity projectileEntity;
 
+                    if(selected.isOf(Items.FIREWORK_ROCKET)) {
+
+                        // silly little optional thing
+
+                        FireworkRocketEntity fireworkRocketEntity = getFireworkRocketEntity(world, selected);
+
+                        projectileEntity = fireworkRocketEntity;
+
+                    } else {
+
+                        // create a projectile to fire
+                        projectileEntity = getProjectileEntity(world);
+
+                    }
                     // FIRE PROJECTILE
                     world.spawnEntity(projectileEntity);
                 } else {
@@ -427,6 +447,27 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
         }
 
     } //
+
+    private FireworkRocketEntity getFireworkRocketEntity(World world, ItemStack selected) {
+        FireworkRocketEntity fireworkRocketEntity = new FireworkRocketEntity(
+                world,
+                selected,
+                muzzlePos.getX(),
+                muzzlePos.getY(),
+                muzzlePos.getZ(),
+                true
+        );
+
+        float rotationR = (float) -((( this.rotation + 90) % 360) * (Math.PI / 180.0));
+        float xR = (float) (Math.cos(rotationR));
+        float zR = (float) (Math.sin(rotationR));
+
+        fireworkRocketEntity.setPosition(muzzlePos.getX(),muzzlePos.getY(),muzzlePos.getZ());
+
+        fireworkRocketEntity.setVelocity(xR,0.0f,zR,(float) BULLET_SPEED,1.0f);
+
+        return fireworkRocketEntity;
+    }
 
     private BulletProjectileEntity getProjectileEntity(World world) {
         BulletProjectileEntity projectileEntity = new BulletProjectileEntity(world);
@@ -448,10 +489,10 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
     }
 
     private boolean isValidProjectile(ItemStack item) {
-        //if (FabricLoader.getInstance().isModLoaded("hwg")) {
-        //    return item.isIn(ModTags.Items.VALID_TURRET_PROJECTILE);
-        //}
-        return item.isIn(ItemTags.ARROWS);
+
+        return item.isIn(ModTags.VALID_TURRET_PROJECTILE);
+
+        // return item.isIn(ItemTags.ARROWS);
     }
 
     private void setTargetSettings(String targetSel, String players, Boolean blacklist) {

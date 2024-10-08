@@ -1,0 +1,20 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:spectral_arrow",
+    "minecraft:tipped_arrow",
+    "minecraft:firework_rocket",
+    {
+      "id": "hwg:bullets",
+      "required": false
+    },
+    {
+      "id": "hwg:shotgun_shell",
+      "required": false
+    },
+    {
+      "id": "hwg:silver_bullet",
+      "required": false
+    }
+  ]
+}
