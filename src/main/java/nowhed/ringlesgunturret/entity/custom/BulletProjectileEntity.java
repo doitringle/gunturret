@@ -2,7 +2,7 @@ package nowhed.ringlesgunturret.entity.custom;
 
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.client.particle.Particle;
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -16,8 +16,6 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
-import net.minecraft.particle.ParticleEffect;
-import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.hit.BlockHitResult;
@@ -25,6 +23,8 @@ import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.BlockView;
+import net.minecraft.world.EmptyBlockView;
 import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
 import nowhed.ringlesgunturret.RinglesGunTurret;
@@ -194,7 +194,10 @@ public class BulletProjectileEntity extends ProjectileEntity {
 
     @Override
     protected void onBlockHit(BlockHitResult blockHitResult) {
-        this.discard();
+        super.onBlockHit(blockHitResult);
+        BlockState blockState = this.getWorld().getBlockState(blockHitResult.getBlockPos());
+        if(!blockState.isTransparent(EmptyBlockView.INSTANCE, this.getBlockPos()))
+            this.discard();
     }
 
     @Override
@@ -205,6 +208,7 @@ public class BulletProjectileEntity extends ProjectileEntity {
         } else if (hitResult.getType() == HitResult.Type.BLOCK) {
             this.onBlockHit((BlockHitResult)hitResult);
         }
+        this.discard();
     }
 
     @Override
