@@ -62,6 +62,8 @@ public class GunTurretEntityRenderer implements BlockEntityRenderer<GunTurretBlo
 
             matrices.pop();
 
+            if(!MinecraftClient.getInstance().getEntityRenderDispatcher().camera.getPos().isInRange(blockEntity.getPos().toCenterPos(), 32)) return;
+
             TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
 
             Text text = (blockEntity.getOwner() == null) ? Text.translatable("block_entity.ringlesgunturret.no_owner") : blockEntity.getOwner().getDisplayName();

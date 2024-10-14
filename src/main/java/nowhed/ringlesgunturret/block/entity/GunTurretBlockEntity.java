@@ -407,10 +407,10 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
 
             if(this.avoidFriendlyFire) {
                 Box box = new Box(muzzlePos.getX(),this.getPos().getY(), muzzlePos.getZ(),
-                                chosen.getPos().getX(),chosen.getPos().getY()+1,chosen.getPos().getZ());
+                                chosen.getPos().getX(),chosen.getPos().getY() + 1,chosen.getPos().getZ());
 
                 EntityHitResult entityHitResult = ProjectileUtil.raycast(chosen, muzzlePos, chosen.getPos(),box,
-                        entity -> entity.canBeHitByProjectile() && !entity.isInvulnerable(), 1 + muzzlePos.distanceTo(chosen.getPos()));
+                        entity -> entity.canHit() && !entity.isInvulnerable(), muzzlePos.squaredDistanceTo(chosen.getPos()));
 
                 if(entityHitResult != null) {
                     if(!isValidTarget((LivingEntity) entityHitResult.getEntity())) {

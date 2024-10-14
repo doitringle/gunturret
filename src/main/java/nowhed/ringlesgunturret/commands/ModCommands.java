@@ -74,11 +74,13 @@ public class ModCommands {
                             .then(argument("player name", EntityArgumentType.player())
                                     .then(argument("targetSelection", StringArgumentType.word())
                                             .then(argument("blacklist", BoolArgumentType.bool())
-                                                .then(argument("player list",StringArgumentType.greedyString())
+                                                .then(argument("avoid friendly fire", BoolArgumentType.bool())
+                                                    .then(argument("player list",StringArgumentType.greedyString())
                             .executes(ctx -> {
                                 PlayerEntity selectedPlayer = EntityArgumentType.getPlayer(ctx,"player name");
                                 String targetSelection = StringArgumentType.getString(ctx, "targetSelection");
                                 boolean blacklist = BoolArgumentType.getBool(ctx,"blacklist");
+                                boolean avoidFriendlyFire = BoolArgumentType.getBool(ctx, "avoid friendly fire");
                                 String playerList = StringArgumentType.getString(ctx, "player list").toLowerCase().replaceAll("\\s","");
 
                                 String[] validSelections = {"all","hostiles","onlyplayers","disable"};
@@ -87,8 +89,8 @@ public class ModCommands {
                                     returnText(ctx, "valid options: " + Arrays.toString(validSelections));
                                     return 0;
                                 }
-                                return setPlayerData(ctx, selectedPlayer, targetSelection, blacklist, playerList);
-                            }))))))
+                                return setPlayerData(ctx, selectedPlayer, targetSelection, blacklist, avoidFriendlyFire, playerList);
+                            })))))))
                             .then(literal("infiniteArrows")
                                     .executes(ctx -> {
                                         returnText(ctx,"infiniteArrows currently: " + GunTurretBlockEntity.infiniteArrows);
@@ -118,7 +120,7 @@ public class ModCommands {
         }));
     }
 
-    public static int setPlayerData(CommandContext<ServerCommandSource> ctx,PlayerEntity player, String targetSelection, boolean blacklist, String playerList) {
+    public static int setPlayerData(CommandContext<ServerCommandSource> ctx,PlayerEntity player, String targetSelection, boolean blacklist, boolean avoidFriendlyFire, String playerList) {
         if(player == null) {
             returnText(ctx, "Player doesn't exist or is null");
             return 0;
@@ -133,6 +135,7 @@ public class ModCommands {
         playerState.targetSelection = targetSelection;
         playerState.blacklist = blacklist;
         playerState.playerList = playerList;
+        playerState.avoidFriendlyFire = avoidFriendlyFire;
 
         return 1;
 
@@ -153,6 +156,7 @@ public class ModCommands {
             returnText(ctx, "targetSelection: " + playerState.targetSelection);
             returnText(ctx, "playerList: " + playerState.playerList);
             returnText(ctx, "blacklist: " + playerState.blacklist);
+            returnText(ctx, "avoidFriendlyFire: " + playerState.avoidFriendlyFire);
             return 1;
         }
     }

@@ -190,7 +190,8 @@ public class GunTurretScreen extends HandledScreen<GunTurretScreenHandler> {
         updateButton(targetSel,false);
         updateButtonPlayers(blklst,false);
         player_name_field.setText(playerLst);
-        friendly_fire_box.active = avoidFriendly;
+        if(avoidFriendly)
+            friendly_fire_box.onPress();
     }
 
     public void setAllVisible(boolean visible) {
@@ -312,6 +313,18 @@ public class GunTurretScreen extends HandledScreen<GunTurretScreenHandler> {
             drawMouseoverTooltip(context,mouseX,mouseY);
     }
 
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (this.friendly_fire_box.mouseClicked(mouseX, mouseY, button)) {
+
+            PacketByteBuf packet = PacketByteBufs.create();
+            packet.writeBoolean(this.friendly_fire_box.isChecked());
+            ClientPlayNetworking.send(ModMessages.AVOID_FRIENDLY_FIRE_ID, packet);
+            return true;
+        }
+
+        return super.mouseClicked(mouseX, mouseY, button);
+    }
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
