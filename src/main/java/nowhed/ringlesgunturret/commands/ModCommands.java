@@ -10,25 +10,14 @@ import static net.minecraft.server.command.CommandManager.argument;
 
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
-import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.command.argument.EntityArgumentType;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.WritableBookItem;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtList;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 import nowhed.ringlesgunturret.block.entity.GunTurretBlockEntity;
 import nowhed.ringlesgunturret.player.PlayerData;
@@ -101,6 +90,10 @@ public class ModCommands {
                                 return setPlayerData(ctx, selectedPlayer, targetSelection, blacklist, playerList);
                             }))))))
                             .then(literal("infiniteArrows")
+                                    .executes(ctx -> {
+                                        returnText(ctx,"infiniteArrows currently: " + GunTurretBlockEntity.infiniteArrows);
+                                        return 1;
+                                    })
                                     .then(argument("all turrets have infinite ammo", BoolArgumentType.bool())
                                             .executes(ctx -> {
                                                 GunTurretBlockEntity.infiniteArrows =

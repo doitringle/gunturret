@@ -34,6 +34,7 @@ public class GunTurretScreen extends HandledScreen<GunTurretScreenHandler> {
     public ButtonWidget player_name_confirm;
     public ButtonWidget whitelist;
     public ButtonWidget blacklist;
+    public CheckboxWidget friendly_fire_box;
 
     public ButtonWidget claim;
     public MultilineTextWidget warning_box;
@@ -70,6 +71,8 @@ public class GunTurretScreen extends HandledScreen<GunTurretScreenHandler> {
 
         main_label = new TextWidget(gw(75),gh(50),gw(100),gh(25),Text.translatable("gui.text.ringlesgunturret.main_label"),textRenderer);
 
+        friendly_fire_box = new CheckboxWidget(gw(55),gh(175),20,20,
+                Text.translatable("gui.checkbox.ringlesgunturret.avoid_friendly_fire"),false,true);
 
         player_name_field = new TextFieldWidget(textRenderer,gw(425),gh(75),gw(150),gh(20),Text.literal(" "));
         player_name_field.setTooltip(Tooltip.of(Text.translatable("gui.text_field.ringlesgunturret.player_names.tooltip")));
@@ -172,6 +175,7 @@ public class GunTurretScreen extends HandledScreen<GunTurretScreenHandler> {
         addDrawableChild(whitelist);
         addDrawableChild(blacklist);
         addDrawableChild(player_name_confirm);
+        addDrawableChild(friendly_fire_box);
         //special
         addDrawableChild(claim);
         addDrawableChild(warning_box);
@@ -182,10 +186,11 @@ public class GunTurretScreen extends HandledScreen<GunTurretScreenHandler> {
         ClientPlayNetworking.send(ModMessages.REQUEST_PLAYER_DATA_ID,PacketByteBufs.create());
     }
 
-    public void setPlayerData(String targetSel, String playerLst, Boolean blklst) {
+    public void setPlayerData(String targetSel, String playerLst, Boolean blklst, Boolean avoidFriendly) {
         updateButton(targetSel,false);
         updateButtonPlayers(blklst,false);
         player_name_field.setText(playerLst);
+        friendly_fire_box.active = avoidFriendly;
     }
 
     public void setAllVisible(boolean visible) {
@@ -199,6 +204,7 @@ public class GunTurretScreen extends HandledScreen<GunTurretScreenHandler> {
         whitelist.visible = visible;
         blacklist.visible = visible;
         player_name_confirm.visible = visible;
+        friendly_fire_box.visible = visible;
     }
 
     public void updateButton(String sel){

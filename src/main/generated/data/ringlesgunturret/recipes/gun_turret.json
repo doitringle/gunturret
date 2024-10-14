@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "a": {
+      "item": "minecraft:dispenser"
+    },
+    "b": {
+      "item": "minecraft:observer"
+    },
+    "c": {
+      "item": "minecraft:copper_block"
+    },
+    "d": {
+      "item": "minecraft:piston"
+    }
+  },
+  "pattern": [
+    "abc",
+    "acc",
+    "ddd"
+  ],
+  "result": {
+    "item": "ringlesgunturret:gun_turret"
+  },
+  "show_notification": true
+}

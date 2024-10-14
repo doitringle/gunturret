@@ -14,8 +14,8 @@ import net.minecraft.entity.mob.PiglinEntity;
 import net.minecraft.entity.passive.*;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.entity.projectile.FireworkRocketEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
+import net.minecraft.entity.projectile.ProjectileUtil;
 import net.minecraft.inventory.Inventories;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -24,17 +24,16 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
-import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.text.Text;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
@@ -45,8 +44,6 @@ import nowhed.ringlesgunturret.networking.ModMessages;
 import nowhed.ringlesgunturret.player.PlayerData;
 import nowhed.ringlesgunturret.player.StateSaver;
 import nowhed.ringlesgunturret.sound.ModSounds;
-import nowhed.ringlesgunturret.util.ModTagGenerator;
-import nowhed.ringlesgunturret.util.ModUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -63,6 +60,7 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
     private String targetSelection = "hostiles";
     private String playerList = "";
     private boolean blacklist = true;
+    private boolean avoidFriendlyFire = true;
 
     //public static float rotationTarget = 60;
     private DefaultedList<ItemStack> inventory = DefaultedList.ofSize(4,ItemStack.EMPTY);
@@ -276,6 +274,7 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
                         lowest = distance;
                         chosen = entity;
                     }
+
                 }
             }
             lockOnEntity = chosen;
@@ -406,6 +405,23 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
                 }
             }
 
+            if(this.avoidFriendlyFire) {
+                Box box = new Box(muzzlePos.getX(),this.getPos().getY(), muzzlePos.getZ(),
+                                chosen.getPos().getX(),chosen.getPos().getY()+1,chosen.getPos().getZ());
+
+                EntityHitResult entityHitResult = ProjectileUtil.raycast(chosen, muzzlePos, chosen.getPos(),box,
+                        entity -> entity.canBeHitByProjectile() && !entity.isInvulnerable(), 1 + muzzlePos.distanceTo(chosen.getPos()));
+
+                if(entityHitResult != null) {
+                    if(!isValidTarget((LivingEntity) entityHitResult.getEntity())) {
+                        cooldown--;
+                        return;
+                    }
+                }
+
+
+            }
+
             if (hasArrows || infiniteArrows) {
 
                 barrelRotation += 1;
@@ -456,13 +472,13 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
             projectileEntity.setDamageValue(5.0f);
 
         } else if (item.isIn(ModTags.MEDIUM_AMMO)) {
-            projectileEntity.setDamageValue(4.0f);
 
+            projectileEntity.setDamageValue(4.0f);
         } else {
+
             projectileEntity.setDamageValue(3.0f);
 
         }
-
 
         return projectileEntity;
     }
@@ -474,19 +490,18 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
         // return item.isIn(ItemTags.ARROWS);
     }
 
-    private void setTargetSettings(String targetSel, String players, Boolean blacklist) {
-        this.targetSelection = targetSel;
-        this.playerList = players;
-        this.blacklist = blacklist;
+    private void setTargetSettings(PlayerData data) {
+        this.targetSelection = data.targetSelection;
+        this.playerList = data.playerList;
+        this.blacklist = data.blacklist;
+        this.avoidFriendlyFire = data.avoidFriendlyFire;
         this.lockOnEntity = null;
     }
 
     public void requestTargetSettings(PlayerEntity player) {
         if(!(world == null) && !world.isClient() && player != null && this.getOwner() != null && player.equals(this.getOwner())) {
             PlayerData playerData = StateSaver.getPlayerState(player, world);
-            if(playerData != null) setTargetSettings(playerData.targetSelection,
-                    playerData.playerList,
-                    playerData.blacklist);
+            if(playerData != null) setTargetSettings(playerData);
         }
     }
 

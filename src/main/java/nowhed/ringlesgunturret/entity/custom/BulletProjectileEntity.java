@@ -1,5 +1,8 @@
 package nowhed.ringlesgunturret.entity.custom;
 
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.client.particle.Particle;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -9,20 +12,25 @@ import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.entity.projectile.ProjectileUtil;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
+import net.minecraft.particle.ParticleEffect;
 import net.minecraft.particle.ParticleTypes;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
 import nowhed.ringlesgunturret.RinglesGunTurret;
 import nowhed.ringlesgunturret.damage_type.ModDamageTypes;
 import nowhed.ringlesgunturret.entity.ModEntities;
+import nowhed.ringlesgunturret.networking.ModMessages;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
@@ -34,7 +42,7 @@ public class BulletProjectileEntity extends ProjectileEntity {
     private PlayerEntity playerOwner;
     @Nullable
     private UUID playerOwnerUuid;
-    private float damageValue;
+    private float damageValue = 4.0f;
 
     public static final float BULLETDAMAGE = 6;
     public static final int removeTime = 60;
@@ -42,7 +50,6 @@ public class BulletProjectileEntity extends ProjectileEntity {
         super(entityType, world);
         this.age = 0;
         this.noClip = true;
-        this.damageValue = 4.0f;
     }
 
     public BulletProjectileEntity(World world) {
@@ -67,8 +74,8 @@ public class BulletProjectileEntity extends ProjectileEntity {
 
     @Override
     public void writeCustomDataToNbt(NbtCompound nbt) {
-
-        nbt.putUuid("playerOwnerUuid",this.playerOwnerUuid);
+        if(this.playerOwnerUuid != null)
+            nbt.putUuid("playerOwnerUuid",this.playerOwnerUuid);
         nbt.putFloat("damageValue",this.damageValue);
         nbt.putInt("age",this.age);
 
@@ -91,8 +98,35 @@ public class BulletProjectileEntity extends ProjectileEntity {
             return;
         }
 
-        if(age > 1 && this.getWorld().isClient) {
-            this.getWorld().addParticle(ParticleTypes.CLOUD, getX(), getY(), getZ(), getVelocity().x * 0.1, 0.0, getVelocity().z * 0.1);
+        if(age > 1 && !this.getWorld().isClient) {
+            //send messages to any player clients nearby that they should display particles
+
+            PacketByteBuf particleData = PacketByteBufs.create();
+
+            particleData.writeDouble(this.getX());
+            particleData.writeDouble(this.getY());
+            particleData.writeDouble(this.getZ());
+
+            particleData.writeDouble(this.getVelocity().getX());
+            particleData.writeDouble(this.getVelocity().getZ());
+
+            particleData.writeFloat(this.damageValue);
+
+            ServerWorld server = ((ServerWorld) this.getWorld());
+
+            // minecraft/server/world/ServerWorld.java:1283
+
+            for (int j = 0; j < server.getPlayers().size(); j++) {
+                //get list of players on the server...
+                ServerPlayerEntity serverPlayerEntity = server.getPlayers().get(j);
+
+                if(serverPlayerEntity.getWorld().equals(this.getWorld())) {
+                    BlockPos blockPos = serverPlayerEntity.getBlockPos();
+                    if(blockPos.isWithinDistance(this.getPos(), 32)) {
+                        ServerPlayNetworking.send(serverPlayerEntity,ModMessages.BULLET_PARTICLES_ID,particleData);
+                    }
+                }
+            }
         }
 
         //setPos(getX() + getVelocity().x, getY(), getZ() + getVelocity().z);
@@ -200,8 +234,6 @@ public class BulletProjectileEntity extends ProjectileEntity {
             entity.damage(damageSource, this.damageValue);
 
             entity.takeKnockback(0.15f, -this.getVelocity().getX(), -this.getVelocity().getZ());
-
-            //System.out.println(ModUtils.getOfflinePlayerName(getServer(),this.playerOwnerUuid));
 
             if (!entity.isAlive() && getPlayerOwner() != null && entity.getServer() != null) {
                 entity.getServer().getPlayerManager().getPlayer(getPlayerOwner().getUuid())

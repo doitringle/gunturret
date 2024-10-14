@@ -26,6 +26,7 @@
   "gui.button.ringlesgunturret.target_onlyplayers":"Attack only players",
   "gui.button.ringlesgunturret.claim_gun_turret": "Claim",
   "gui.button.ringlesgunturret.claim_gun_turret.tooltip": "Claim this unowned gun turret",
+  "gui.checkbox.ringlesgunturret.avoid_friendly_fire": "Avoid friendly fire",
 
   "gui.text.ringlesgunturret.players_settings":"Players settings",
   "gui.text_field.ringlesgunturret.player_names.tooltip":"Separate names by comma",

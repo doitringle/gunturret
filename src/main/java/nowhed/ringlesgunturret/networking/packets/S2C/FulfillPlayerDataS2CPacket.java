@@ -13,10 +13,11 @@ public class FulfillPlayerDataS2CPacket {
         String targetSelection = buf.readString();
         String playerList = buf.readString();
         Boolean blacklist = buf.readBoolean();
+        Boolean friendlyFire = buf.readBoolean();
 
         GunTurretScreen clientScreen = (GunTurretScreen) client.currentScreen;
 
-        clientScreen.setPlayerData(targetSelection,playerList,blacklist);
+        clientScreen.setPlayerData(targetSelection,playerList,blacklist,friendlyFire);
 
 
     }

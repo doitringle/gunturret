@@ -78,7 +78,6 @@ public class RinglesGunTurret implements ModInitializer {
 		ModDamageTypes.registerModDamageTypes();
 		ModEntities.registerModEntities();
 		ModMessages.registerC2SPackets();
-		//ModMessages.registerS2CPackets();
 		ModCommands.registerModCommands();
 		registerEvents();
 

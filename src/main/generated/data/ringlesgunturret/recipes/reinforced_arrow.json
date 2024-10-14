@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "equipment",
+  "ingredients": [
+    {
+      "item": "minecraft:lapis_lazuli"
+    },
+    {
+      "item": "minecraft:arrow"
+    },
+    {
+      "item": "minecraft:fire_charge"
+    }
+  ],
+  "result": {
+    "count": 2,
+    "item": "ringlesgunturret:reinforced_arrow"
+  }
+}

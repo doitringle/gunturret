@@ -42,6 +42,7 @@ public class StateSaver extends PersistentState {
             playerData.targetSelection = playersNbt.getCompound(key).getString("targetSelection");
             playerData.playerList = playersNbt.getCompound(key).getString("playerList");
             playerData.blacklist = playersNbt.getCompound(key).getBoolean("blacklist");
+            playerData.avoidFriendlyFire = playersNbt.getCompound(key).getBoolean("avoidFriendlyFire");
 
 
             UUID uuid = UUID.fromString(key);
@@ -82,6 +83,7 @@ public class StateSaver extends PersistentState {
            playerNbt.putString("targetSelection",playerData.targetSelection);
            playerNbt.putString("playerList",playerData.playerList);
            playerNbt.putBoolean("blacklist",playerData.blacklist);
+           playerNbt.putBoolean("avoidFriendlyFire",playerData.avoidFriendlyFire);
 
            //System.out.println(playerData.targetSelection);
 

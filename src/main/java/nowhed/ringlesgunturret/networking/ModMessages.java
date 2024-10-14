@@ -10,6 +10,7 @@ import nowhed.ringlesgunturret.networking.packets.S2C.*;
 public class ModMessages {
     public static final Identifier TARGET_SELECTION_ID = new Identifier(RinglesGunTurret.MOD_ID, "target_selection_packet");
     public static final Identifier BLACKLIST_ID = new Identifier(RinglesGunTurret.MOD_ID, "blacklist_packet");
+    public static final Identifier AVOID_FRIENDLY_FIRE_ID = new Identifier(RinglesGunTurret.MOD_ID, "friendly_packet");
     public static final Identifier PLAYER_LIST_ID = new Identifier(RinglesGunTurret.MOD_ID, "player_list_packet");
     public static final Identifier REQUEST_PLAYER_DATA_ID = new Identifier(RinglesGunTurret.MOD_ID,"request_player_data_packet");
     public static final Identifier REQUEST_ROT_DATA_ID = new Identifier(RinglesGunTurret.MOD_ID,"request_rotation_data_packet");
@@ -20,11 +21,13 @@ public class ModMessages {
     public static final Identifier ROT_DATA_ID = new Identifier(RinglesGunTurret.MOD_ID,"rotation_data_packet");
     public static final Identifier SET_OWNER_ID = new Identifier(RinglesGunTurret.MOD_ID,"set_owner_packet");
     public static final Identifier REQUEST_PLAYER_VELOCITY_ID = new Identifier(RinglesGunTurret.MOD_ID,"request_player_velocity_packet");
+    public static final Identifier BULLET_PARTICLES_ID = new Identifier(RinglesGunTurret.MOD_ID,"bullet_particles_packet");
 
     public static void registerC2SPackets() {
         ServerPlayNetworking.registerGlobalReceiver(TARGET_SELECTION_ID, TargetSelectionC2SPacket::receive);
         ServerPlayNetworking.registerGlobalReceiver(PLAYER_LIST_ID, PlayerListC2SPacket::receive);
         ServerPlayNetworking.registerGlobalReceiver(BLACKLIST_ID, BlacklistC2SPacket::receive);
+        ServerPlayNetworking.registerGlobalReceiver(AVOID_FRIENDLY_FIRE_ID, friendlyFireC2SPacket::receive);
         ServerPlayNetworking.registerGlobalReceiver(REQUEST_PLAYER_DATA_ID, RequestPlayerDataC2SPacket::receive);
         ServerPlayNetworking.registerGlobalReceiver(REQUEST_ROT_DATA_ID, RequestRotationDataC2SPacket::receive);
         ServerPlayNetworking.registerGlobalReceiver(CLAIM_ID, ClaimC2SPacket::receive);
@@ -36,5 +39,6 @@ public class ModMessages {
         ClientPlayNetworking.registerGlobalReceiver(ROT_DATA_ID, FulfillRotationDataS2CPacket::receive);
         ClientPlayNetworking.registerGlobalReceiver(SET_OWNER_ID, SetOwnerS2CPacket::receive);
         ClientPlayNetworking.registerGlobalReceiver(REQUEST_PLAYER_VELOCITY_ID, RequestPlayerVelocityS2CPacket::receive);
+        ClientPlayNetworking.registerGlobalReceiver(BULLET_PARTICLES_ID, BulletParticlesS2CPacket::receive);
     }
 }

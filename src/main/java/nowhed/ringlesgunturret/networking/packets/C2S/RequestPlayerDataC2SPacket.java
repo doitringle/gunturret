@@ -22,6 +22,7 @@ public class RequestPlayerDataC2SPacket {
         response.writeString(playerState.targetSelection);
         response.writeString(playerState.playerList);
         response.writeBoolean(playerState.blacklist);
+        response.writeBoolean(playerState.avoidFriendlyFire);
         responseSender.sendPacket(ModMessages.GET_PLAYER_DATA_ID, response);
 
     }
