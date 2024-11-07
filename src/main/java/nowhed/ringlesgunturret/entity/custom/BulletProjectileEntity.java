@@ -23,7 +23,6 @@ import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.BlockView;
 import net.minecraft.world.EmptyBlockView;
 import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
@@ -135,7 +134,7 @@ public class BulletProjectileEntity extends ProjectileEntity {
 
         Vec3d nextPosition = currentPosition.add(this.getVelocity());
 
-        EntityHitResult entityHitResult = this.getEntityCollision(currentPosition, nextPosition);
+        /*EntityHitResult entityHitResult = this.getEntityCollision(currentPosition, nextPosition);
 
         if (entityHitResult != null && !entityHitResult.getEntity().getType().equals(ModEntities.BULLET_PROJECTILE)) {
             this.onEntityHit(entityHitResult);
@@ -145,8 +144,14 @@ public class BulletProjectileEntity extends ProjectileEntity {
 
         if (blockHitResult.getType() != HitResult.Type.MISS) {
             this.onBlockHit(blockHitResult);
+        }*/
+        HitResult hitResult = ProjectileUtil.getCollision(this, this::canHit);
+
+        if (hitResult.getType() != HitResult.Type.MISS) {
+            this.onCollision(hitResult);
         }
 
+        this.checkBlockCollision();
         this.setPosition(this.getX() + this.getVelocity().x, this.getY(), this.getZ() + this.getVelocity().z);
 
     }
@@ -195,20 +200,19 @@ public class BulletProjectileEntity extends ProjectileEntity {
     @Override
     protected void onBlockHit(BlockHitResult blockHitResult) {
         super.onBlockHit(blockHitResult);
-        BlockState blockState = this.getWorld().getBlockState(blockHitResult.getBlockPos());
-        if(!blockState.isTransparent(EmptyBlockView.INSTANCE, this.getBlockPos()))
+        if (!this.getWorld().isClient)
             this.discard();
     }
 
     @Override
     protected void onCollision(HitResult hitResult) {
-
+        super.onCollision(hitResult);
         if (hitResult.getType() == HitResult.Type.ENTITY) {
-            this.onEntityHit((EntityHitResult)hitResult);
+            this.onEntityHit((EntityHitResult) hitResult);
         } else if (hitResult.getType() == HitResult.Type.BLOCK) {
-            this.onBlockHit((BlockHitResult)hitResult);
+            this.onBlockHit((BlockHitResult) hitResult);
         }
-        this.discard();
+
     }
 
     @Override
