@@ -62,7 +62,7 @@ public class GunTurretEntityRenderer implements BlockEntityRenderer<GunTurretBlo
 
             matrices.pop();
 
-            if(!MinecraftClient.getInstance().getEntityRenderDispatcher().camera.getPos().isInRange(blockEntity.getPos().toCenterPos(), 32)) return;
+            if(!MinecraftClient.getInstance().getEntityRenderDispatcher().camera.getPos().isInRange(blockEntity.getPos().toCenterPos(), 24)) return;
 
             TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
 

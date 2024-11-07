@@ -8,6 +8,7 @@ import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.Monster;
 import net.minecraft.entity.mob.PiglinEntity;
@@ -253,7 +254,18 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
                 //Long estimatedTime = System.nanoTime();
                 //System.out.println("Time to check: " + (estimatedTime - startTime));
                 if (!valid) {
+                    //detect entities with living valid target passengers, so you can't bypass the turret's aiming with a horse or a boat
+                    if (entity.hasPassengers()){
+                        Entity passenger = entity.getPassengerList().get(0);
+                        if(passenger instanceof LivingEntity) {
+                            if(!isValidTarget((LivingEntity) passenger))
+                                continue;
+                        } else {
+                            continue;
+                        }
+                    } else {
                     continue;
+                    }
                 }
 
                 double distance = Math.sqrt(
@@ -326,10 +338,11 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
         //System.out.println(chosen.getHorizontalFacing().getVector() + " :  " + cVelocity);
 
         // prediction only accurate if predictionMultiplier is 1.0
+        // long story
         Vec3d predictedPosition;
 
         this.muzzlePos = new Vec3d(this.getPos().toCenterPos().getX(),
-                this.getPos().getY() + 1.2,
+                this.getPos().getY() + 1.3,
                 this.getPos().toCenterPos().getZ());
 
         if(Math.abs(cVelocity.getX()) <= 0.03 && Math.abs(cVelocity.getZ()) <= 0.03 ) {
@@ -413,9 +426,16 @@ public class GunTurretBlockEntity extends BlockEntity implements ExtendedScreenH
                         entity -> entity.canHit() && !entity.isInvulnerable(), muzzlePos.squaredDistanceTo(chosen.getPos()));
 
                 if(entityHitResult != null) {
-                    if(!isValidTarget((LivingEntity) entityHitResult.getEntity())) {
+                    Entity entityHit = entityHitResult.getEntity();
+                    if(entityHit instanceof LivingEntity && !isValidTarget((LivingEntity) entityHit)) {
                         cooldown--;
                         return;
+                    } else if (entityHit.hasPassengers()){
+                        Entity passenger = entityHit.getPassengerList().get(0);
+                        if(passenger instanceof LivingEntity && !isValidTarget((LivingEntity) passenger)) {
+                            cooldown--;
+                            return;
+                        }
                     }
                 }
 
